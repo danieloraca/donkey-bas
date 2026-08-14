@@ -1,0 +1,459 @@
+CMAKE_TOOLCHAIN_FILE_aarch64-apple-darwin = None
+CMAKE_TOOLCHAIN_FILE_aarch64_apple_darwin = None
+HOST_CMAKE_TOOLCHAIN_FILE = None
+CMAKE_TOOLCHAIN_FILE = None
+CMAKE_GENERATOR_aarch64-apple-darwin = None
+CMAKE_GENERATOR_aarch64_apple_darwin = None
+HOST_CMAKE_GENERATOR = None
+CMAKE_GENERATOR = None
+CMAKE_PREFIX_PATH_aarch64-apple-darwin = None
+CMAKE_PREFIX_PATH_aarch64_apple_darwin = None
+HOST_CMAKE_PREFIX_PATH = None
+CMAKE_PREFIX_PATH = None
+CMAKE_aarch64-apple-darwin = None
+CMAKE_aarch64_apple_darwin = None
+HOST_CMAKE = None
+CMAKE = None
+-- 
+-- SDL2 was configured with the following options:
+-- 
+-- Platform: Darwin-25.3.0
+-- 64-bit:   TRUE
+-- Compiler: /usr/bin/cc
+-- Revision: SDL-2.26.4-no-vcs
+-- 
+-- Subsystems:
+--   Atomic:	ON
+--   Audio:	ON
+--   Video:	ON
+--   Render:	ON
+--   Events:	ON
+--   Joystick:	ON
+--   Haptic:	ON
+--   Hidapi:	ON
+--   Power:	ON
+--   Threads:	ON
+--   Timers:	ON
+--   File:	ON
+--   Loadso:	ON
+--   CPUinfo:	ON
+--   Filesystem:	ON
+--   Sensor:	ON
+--   Locale:	ON
+--   Misc:	ON
+-- 
+-- Options:
+--   SDL2_DISABLE_INSTALL        (Wanted: OFF): OFF
+--   SDL2_DISABLE_SDL2MAIN       (Wanted: OFF): OFF
+--   SDL2_DISABLE_UNINSTALL      (Wanted: OFF): OFF
+--   SDL_3DNOW                   (Wanted: ON): OFF
+--   SDL_ALSA                    (Wanted: OFF): OFF
+--   SDL_ALSA_SHARED             (Wanted: OFF): OFF
+--   SDL_ALTIVEC                 (Wanted: ON): OFF
+--   SDL_ARMNEON                 (Wanted: OFF): OFF
+--   SDL_ARMSIMD                 (Wanted: OFF): OFF
+--   SDL_ARTS                    (Wanted: OFF): OFF
+--   SDL_ARTS_SHARED             (Wanted: OFF): OFF
+--   SDL_ASAN                    (Wanted: OFF): OFF
+--   SDL_ASSEMBLY                (Wanted: ON): ON
+--   SDL_ASSERTIONS              (Wanted: auto): auto
+--   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_CCACHE                  (Wanted: ON): ON
+--   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
+--   SDL_COCOA                   (Wanted: ON): ON
+--   SDL_DBUS                    (Wanted: OFF): OFF
+--   SDL_DIRECTFB                (Wanted: OFF): OFF
+--   SDL_DIRECTFB_SHARED         (Wanted: OFF): OFF
+--   SDL_DIRECTX                 (Wanted: OFF): OFF
+--   SDL_DISKAUDIO               (Wanted: ON): ON
+--   SDL_DUMMYAUDIO              (Wanted: ON): ON
+--   SDL_DUMMYVIDEO              (Wanted: ON): ON
+--   SDL_ESD                     (Wanted: OFF): OFF
+--   SDL_ESD_SHARED              (Wanted: OFF): OFF
+--   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_FUSIONSOUND             (Wanted: OFF): OFF
+--   SDL_FUSIONSOUND_SHARED      (Wanted: OFF): OFF
+--   SDL_GCC_ATOMICS             (Wanted: ON): ON
+--   SDL_HIDAPI                  (Wanted: ON): ON
+--   SDL_HIDAPI_JOYSTICK         (Wanted: ON): ON
+--   SDL_HIDAPI_LIBUSB           (Wanted: OFF): OFF
+--   SDL_IBUS                    (Wanted: OFF): OFF
+--   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
+--   SDL_JACK                    (Wanted: OFF): OFF
+--   SDL_JACK_SHARED             (Wanted: OFF): OFF
+--   SDL_KMSDRM                  (Wanted: OFF): OFF
+--   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
+--   SDL_LIBC                    (Wanted: ON): ON
+--   SDL_LIBSAMPLERATE           (Wanted: OFF): OFF
+--   SDL_LIBSAMPLERATE_SHARED    (Wanted: OFF): OFF
+--   SDL_METAL                   (Wanted: ON): ON
+--   SDL_MMX                     (Wanted: ON): OFF
+--   SDL_NAS                     (Wanted: OFF): OFF
+--   SDL_NAS_SHARED              (Wanted: OFF): OFF
+--   SDL_OFFSCREEN               (Wanted: ON): ON
+--   SDL_OPENGL                  (Wanted: ON): ON
+--   SDL_OPENGLES                (Wanted: ON): ON
+--   SDL_OSS                     (Wanted: OFF): OFF
+--   SDL_PIPEWIRE                (Wanted: OFF): OFF
+--   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
+--   SDL_PTHREADS                (Wanted: ON): ON
+--   SDL_PTHREADS_SEM            (Wanted: ON): ON
+--   SDL_PULSEAUDIO              (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
+--   SDL_RENDER_D3D              (Wanted: OFF): OFF
+--   SDL_RENDER_METAL            (Wanted: ON): ON
+--   SDL_RPATH                   (Wanted: OFF): OFF
+--   SDL_RPI                     (Wanted: OFF): OFF
+--   SDL_SNDIO                   (Wanted: OFF): OFF
+--   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
+--   SDL_SSE                     (Wanted: ON): OFF
+--   SDL_SSE2                    (Wanted: OFF): OFF
+--   SDL_SSE3                    (Wanted: OFF): OFF
+--   SDL_SSEMATH                 (Wanted: OFF): OFF
+--   SDL_STATIC_PIC              (Wanted: OFF): OFF
+--   SDL_SYSTEM_ICONV            (Wanted: ON): ON
+--   SDL_TESTS                   (Wanted: OFF): OFF
+--   SDL_VENDOR_INFO             (Wanted: ): OFF
+--   SDL_VIRTUAL_JOYSTICK        (Wanted: ON): ON
+--   SDL_VIVANTE                 (Wanted: OFF): OFF
+--   SDL_VULKAN                  (Wanted: ON): ON
+--   SDL_WASAPI                  (Wanted: OFF): OFF
+--   SDL_WAYLAND                 (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
+--   SDL_WAYLAND_QT_TOUCH        (Wanted: OFF): OFF
+--   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
+--   SDL_X11                     (Wanted: OFF): OFF
+--   SDL_X11_SHARED              (Wanted: OFF): OFF
+--   SDL_X11_XCURSOR             (Wanted: OFF): OFF
+--   SDL_X11_XDBE                (Wanted: OFF): OFF
+--   SDL_X11_XFIXES              (Wanted: OFF): OFF
+--   SDL_X11_XINPUT              (Wanted: OFF): OFF
+--   SDL_X11_XRANDR              (Wanted: OFF): OFF
+--   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
+--   SDL_X11_XSHAPE              (Wanted: OFF): OFF
+--   SDL_XINPUT                  (Wanted: OFF): OFF
+-- 
+--  CFLAGS:         -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.2 -w -idirafter "/Users/danieloraca/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdl2-sys-0.38.0/SDL/src/video/khronos"
+--  EXTRA_CFLAGS:   -Wall -fno-strict-aliasing -Wdeclaration-after-statement -fvisibility=hidden -Wshadow -D_THREAD_SAFE
+--  EXTRA_LDFLAGS: -Wl,-framework,CoreVideo;-Wl,-framework,Cocoa;-Wl,-framework,IOKit;-Wl,-framework,ForceFeedback;-Wl,-framework,Carbon;-Wl,-framework,CoreAudio;-Wl,-framework,AudioToolbox;-Wl,-framework,AVFoundation;-Wl,-framework,Foundation;-Wl,-weak_framework,GameController;-Wl,-weak_framework,Metal;-Wl,-weak_framework,QuartzCore;-Wl,-weak_framework,CoreHaptics -Wl,-compatibility_version,2601.0.0;-Wl,-current_version,2601.4.0
+--  EXTRA_LIBS:    m;iconv
+-- 
+--  Build Shared Library: ON
+--  Build Static Library: OFF
+-- 
+-- If something was not detected, although the libraries
+-- were installed, then make sure you have set the
+-- CFLAGS and LDFLAGS environment variables correctly.
+-- 
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/build
+[ 28%] Built target sdl_headers_copy
+[ 28%] Building C object CMakeFiles/SDL2main.dir/src/main/dummy/SDL_dummy_main.c.o
+[ 28%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_assert.c.o
+[ 28%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_fuzzer.c.o
+[ 29%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_common.c.o
+[ 29%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_crc32.c.o
+[ 30%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_font.c.o
+[ 30%] Building C object CMakeFiles/SDL2.dir/src/SDL.c.o
+[ 30%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_compare.c.o
+[ 31%] Linking C static library libSDL2main.a
+[ 31%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_harness.c.o
+[ 32%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_imageBlit.c.o
+[ 32%] Building C object CMakeFiles/SDL2.dir/src/SDL_assert.c.o
+[ 32%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_imageBlitBlend.c.o
+[ 33%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_imageFace.c.o
+[ 34%] Building C object CMakeFiles/SDL2.dir/src/SDL_dataqueue.c.o
+[ 34%] Built target SDL2main
+[ 34%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_imagePrimitives.c.o
+[ 34%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_imagePrimitivesBlend.c.o
+[ 34%] Building C object CMakeFiles/SDL2.dir/src/SDL_error.c.o
+[ 35%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_log.c.o
+[ 35%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_md5.c.o
+[ 35%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_memory.c.o
+[ 36%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_random.c.o
+[ 36%] Building C object CMakeFiles/SDL2.dir/src/SDL_guid.c.o
+[ 36%] Building C object CMakeFiles/SDL2.dir/src/SDL_list.c.o
+[ 37%] Building C object CMakeFiles/SDL2.dir/src/SDL_hints.c.o
+[ 37%] Building C object CMakeFiles/SDL2.dir/src/SDL_log.c.o
+[ 38%] Building C object CMakeFiles/SDL2.dir/src/SDL_utils.c.o
+[ 38%] Building C object CMakeFiles/SDL2.dir/src/atomic/SDL_atomic.c.o
+[ 38%] Building C object CMakeFiles/SDL2.dir/src/atomic/SDL_spinlock.c.o
+[ 39%] Building C object CMakeFiles/SDL2.dir/src/audio/SDL_audio.c.o
+[ 39%] Linking C static library libSDL2_test.a
+[ 39%] Building C object CMakeFiles/SDL2.dir/src/audio/SDL_audiocvt.c.o
+[ 40%] Building C object CMakeFiles/SDL2.dir/src/audio/SDL_audiodev.c.o
+[ 40%] Building C object CMakeFiles/SDL2.dir/src/audio/SDL_audiotypecvt.c.o
+[ 40%] Building C object CMakeFiles/SDL2.dir/src/audio/SDL_mixer.c.o
+[ 41%] Building C object CMakeFiles/SDL2.dir/src/audio/SDL_wave.c.o
+[ 41%] Building C object CMakeFiles/SDL2.dir/src/cpuinfo/SDL_cpuinfo.c.o
+[ 41%] Built target SDL2_test
+[ 41%] Building C object CMakeFiles/SDL2.dir/src/dynapi/SDL_dynapi.c.o
+[ 42%] Building C object CMakeFiles/SDL2.dir/src/events/SDL_clipboardevents.c.o
+[ 42%] Building C object CMakeFiles/SDL2.dir/src/events/SDL_displayevents.c.o
+[ 43%] Building C object CMakeFiles/SDL2.dir/src/events/SDL_events.c.o
+[ 43%] Building C object CMakeFiles/SDL2.dir/src/events/SDL_dropevents.c.o
+[ 43%] Building C object CMakeFiles/SDL2.dir/src/events/SDL_gesture.c.o
+[ 43%] Building C object CMakeFiles/SDL2.dir/src/events/SDL_keyboard.c.o
+[ 44%] Building C object CMakeFiles/SDL2.dir/src/events/SDL_keysym_to_scancode.c.o
+[ 44%] Building C object CMakeFiles/SDL2.dir/src/events/SDL_mouse.c.o
+[ 45%] Building C object CMakeFiles/SDL2.dir/src/events/SDL_quit.c.o
+[ 45%] Building C object CMakeFiles/SDL2.dir/src/events/SDL_scancode_tables.c.o
+[ 45%] Building C object CMakeFiles/SDL2.dir/src/events/SDL_touch.c.o
+[ 46%] Building C object CMakeFiles/SDL2.dir/src/events/SDL_windowevents.c.o
+[ 46%] Building C object CMakeFiles/SDL2.dir/src/events/imKStoUCS.c.o
+[ 46%] Building C object CMakeFiles/SDL2.dir/src/file/SDL_rwops.c.o
+[ 47%] Building C object CMakeFiles/SDL2.dir/src/haptic/SDL_haptic.c.o
+[ 47%] Building C object CMakeFiles/SDL2.dir/src/hidapi/SDL_hidapi.c.o
+[ 47%] Building C object CMakeFiles/SDL2.dir/src/joystick/SDL_gamecontroller.c.o
+[ 48%] Building C object CMakeFiles/SDL2.dir/src/joystick/SDL_joystick.c.o
+[ 48%] Building C object CMakeFiles/SDL2.dir/src/joystick/controller_type.c.o
+[ 49%] Building C object CMakeFiles/SDL2.dir/src/libm/e_atan2.c.o
+[ 49%] Building C object CMakeFiles/SDL2.dir/src/libm/e_exp.c.o
+[ 49%] Building C object CMakeFiles/SDL2.dir/src/libm/e_fmod.c.o
+[ 50%] Building C object CMakeFiles/SDL2.dir/src/libm/e_log.c.o
+[ 50%] Building C object CMakeFiles/SDL2.dir/src/libm/e_log10.c.o
+[ 50%] Building C object CMakeFiles/SDL2.dir/src/libm/e_pow.c.o
+[ 51%] Building C object CMakeFiles/SDL2.dir/src/libm/e_rem_pio2.c.o
+[ 51%] Building C object CMakeFiles/SDL2.dir/src/libm/e_sqrt.c.o
+[ 51%] Building C object CMakeFiles/SDL2.dir/src/libm/k_cos.c.o
+[ 52%] Building C object CMakeFiles/SDL2.dir/src/libm/k_rem_pio2.c.o
+[ 52%] Building C object CMakeFiles/SDL2.dir/src/libm/k_sin.c.o
+[ 52%] Building C object CMakeFiles/SDL2.dir/src/libm/k_tan.c.o
+[ 53%] Building C object CMakeFiles/SDL2.dir/src/libm/s_atan.c.o
+[ 53%] Building C object CMakeFiles/SDL2.dir/src/libm/s_copysign.c.o
+[ 54%] Building C object CMakeFiles/SDL2.dir/src/libm/s_cos.c.o
+[ 54%] Building C object CMakeFiles/SDL2.dir/src/libm/s_fabs.c.o
+[ 54%] Building C object CMakeFiles/SDL2.dir/src/libm/s_floor.c.o
+[ 55%] Building C object CMakeFiles/SDL2.dir/src/libm/s_scalbn.c.o
+[ 55%] Building C object CMakeFiles/SDL2.dir/src/libm/s_sin.c.o
+[ 56%] Building C object CMakeFiles/SDL2.dir/src/locale/SDL_locale.c.o
+[ 56%] Building C object CMakeFiles/SDL2.dir/src/libm/s_tan.c.o
+[ 56%] Building C object CMakeFiles/SDL2.dir/src/misc/SDL_url.c.o
+[ 56%] Building C object CMakeFiles/SDL2.dir/src/power/SDL_power.c.o
+[ 57%] Building C object CMakeFiles/SDL2.dir/src/render/SDL_d3dmath.c.o
+[ 57%] Building C object CMakeFiles/SDL2.dir/src/render/SDL_render.c.o
+[ 58%] Building C object CMakeFiles/SDL2.dir/src/render/SDL_yuv_sw.c.o
+[ 58%] Building C object CMakeFiles/SDL2.dir/src/render/direct3d/SDL_render_d3d.c.o
+[ 58%] Building C object CMakeFiles/SDL2.dir/src/render/direct3d/SDL_shaders_d3d.c.o
+[ 59%] Building C object CMakeFiles/SDL2.dir/src/render/direct3d11/SDL_render_d3d11.c.o
+[ 59%] Building C object CMakeFiles/SDL2.dir/src/render/direct3d11/SDL_shaders_d3d11.c.o
+[ 59%] Building C object CMakeFiles/SDL2.dir/src/render/direct3d12/SDL_render_d3d12.c.o
+[ 60%] Building C object CMakeFiles/SDL2.dir/src/render/direct3d12/SDL_shaders_d3d12.c.o
+[ 60%] Building C object CMakeFiles/SDL2.dir/src/render/opengl/SDL_render_gl.c.o
+[ 60%] Building C object CMakeFiles/SDL2.dir/src/render/opengl/SDL_shaders_gl.c.o
+[ 61%] Building C object CMakeFiles/SDL2.dir/src/render/opengles/SDL_render_gles.c.o
+[ 61%] Building C object CMakeFiles/SDL2.dir/src/render/opengles2/SDL_render_gles2.c.o
+[ 61%] Building C object CMakeFiles/SDL2.dir/src/render/opengles2/SDL_shaders_gles2.c.o
+[ 62%] Building C object CMakeFiles/SDL2.dir/src/render/ps2/SDL_render_ps2.c.o
+[ 62%] Building C object CMakeFiles/SDL2.dir/src/render/psp/SDL_render_psp.c.o
+[ 63%] Building C object CMakeFiles/SDL2.dir/src/render/software/SDL_blendfillrect.c.o
+[ 63%] Building C object CMakeFiles/SDL2.dir/src/render/software/SDL_blendline.c.o
+[ 63%] Building C object CMakeFiles/SDL2.dir/src/render/software/SDL_blendpoint.c.o
+[ 64%] Building C object CMakeFiles/SDL2.dir/src/render/software/SDL_drawline.c.o
+[ 64%] Building C object CMakeFiles/SDL2.dir/src/render/software/SDL_drawpoint.c.o
+[ 64%] Building C object CMakeFiles/SDL2.dir/src/render/software/SDL_render_sw.c.o
+[ 65%] Building C object CMakeFiles/SDL2.dir/src/render/software/SDL_rotate.c.o
+[ 65%] Building C object CMakeFiles/SDL2.dir/src/render/software/SDL_triangle.c.o
+[ 65%] Building C object CMakeFiles/SDL2.dir/src/render/vitagxm/SDL_render_vita_gxm.c.o
+[ 66%] Building C object CMakeFiles/SDL2.dir/src/render/vitagxm/SDL_render_vita_gxm_memory.c.o
+[ 66%] Building C object CMakeFiles/SDL2.dir/src/render/vitagxm/SDL_render_vita_gxm_tools.c.o
+[ 67%] Building C object CMakeFiles/SDL2.dir/src/sensor/SDL_sensor.c.o
+[ 67%] Building C object CMakeFiles/SDL2.dir/src/stdlib/SDL_crc16.c.o
+[ 67%] Building C object CMakeFiles/SDL2.dir/src/stdlib/SDL_crc32.c.o
+[ 68%] Building C object CMakeFiles/SDL2.dir/src/stdlib/SDL_getenv.c.o
+[ 68%] Building C object CMakeFiles/SDL2.dir/src/stdlib/SDL_iconv.c.o
+[ 68%] Building C object CMakeFiles/SDL2.dir/src/stdlib/SDL_malloc.c.o
+[ 69%] Building C object CMakeFiles/SDL2.dir/src/stdlib/SDL_mslibc.c.o
+[ 69%] Building C object CMakeFiles/SDL2.dir/src/stdlib/SDL_qsort.c.o
+[ 69%] Building C object CMakeFiles/SDL2.dir/src/stdlib/SDL_stdlib.c.o
+[ 70%] Building C object CMakeFiles/SDL2.dir/src/stdlib/SDL_string.c.o
+[ 70%] Building C object CMakeFiles/SDL2.dir/src/stdlib/SDL_strtokr.c.o
+[ 70%] Building C object CMakeFiles/SDL2.dir/src/thread/SDL_thread.c.o
+[ 71%] Building C object CMakeFiles/SDL2.dir/src/timer/SDL_timer.c.o
+[ 71%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_RLEaccel.c.o
+[ 72%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_blit.c.o
+[ 72%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_blit_0.c.o
+[ 72%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_blit_1.c.o
+[ 73%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_blit_A.c.o
+[ 73%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_blit_N.c.o
+[ 73%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_blit_auto.c.o
+[ 74%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_blit_copy.c.o
+[ 74%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_blit_slow.c.o
+[ 74%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_bmp.c.o
+[ 75%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_clipboard.c.o
+[ 75%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_egl.c.o
+[ 76%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_fillrect.c.o
+[ 76%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_pixels.c.o
+[ 76%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_rect.c.o
+[ 77%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_shape.c.o
+[ 77%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_stretch.c.o
+[ 77%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_surface.c.o
+[ 78%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_video.c.o
+[ 78%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_vulkan_utils.c.o
+[ 78%] Building C object CMakeFiles/SDL2.dir/src/video/SDL_yuv.c.o
+[ 79%] Building C object CMakeFiles/SDL2.dir/src/video/yuv2rgb/yuv_rgb.c.o
+[ 79%] Building C object CMakeFiles/SDL2.dir/src/audio/dummy/SDL_dummyaudio.c.o
+[ 79%] Building C object CMakeFiles/SDL2.dir/src/audio/disk/SDL_diskaudio.c.o
+[ 80%] Building C object CMakeFiles/SDL2.dir/src/loadso/dlopen/SDL_sysloadso.c.o
+[ 80%] Building C object CMakeFiles/SDL2.dir/src/joystick/virtual/SDL_virtualjoystick.c.o
+[ 81%] Building C object CMakeFiles/SDL2.dir/src/video/dummy/SDL_nullevents.c.o
+[ 81%] Building C object CMakeFiles/SDL2.dir/src/video/dummy/SDL_nullframebuffer.c.o
+[ 81%] Building C object CMakeFiles/SDL2.dir/src/video/dummy/SDL_nullvideo.c.o
+[ 81%] Building C object CMakeFiles/SDL2.dir/src/video/offscreen/SDL_offscreenframebuffer.c.o
+[ 82%] Building C object CMakeFiles/SDL2.dir/src/video/offscreen/SDL_offscreenevents.c.o
+[ 82%] Building C object CMakeFiles/SDL2.dir/src/video/offscreen/SDL_offscreenopengles.c.o
+[ 83%] Building C object CMakeFiles/SDL2.dir/src/video/offscreen/SDL_offscreenvideo.c.o
+[ 83%] Building C object CMakeFiles/SDL2.dir/src/video/offscreen/SDL_offscreenwindow.c.o
+[ 83%] Building OBJC object CMakeFiles/SDL2.dir/src/file/cocoa/SDL_rwopsbundlesupport.m.o
+[ 84%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_combined.c.o
+[ 85%] Building OBJC object CMakeFiles/SDL2.dir/src/misc/macosx/SDL_sysurl.m.o
+[ 85%] Building OBJC object CMakeFiles/SDL2.dir/src/audio/coreaudio/SDL_coreaudio.m.o
+[ 85%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_gamecube.c.o
+[ 85%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_luna.c.o
+[ 86%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_ps3.c.o
+[ 86%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_ps4.c.o
+[ 86%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_ps5.c.o
+[ 87%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_rumble.c.o
+[ 87%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_shield.c.o
+[ 87%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_stadia.c.o
+[ 88%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_steam.c.o
+[ 88%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_switch.c.o
+[ 88%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_wii.c.o
+[ 89%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_xbox360.c.o
+[ 89%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_xbox360w.c.o
+[ 90%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapi_xboxone.c.o
+[ 90%] Building C object CMakeFiles/SDL2.dir/src/joystick/hidapi/SDL_hidapijoystick.c.o
+[ 90%] Building C object CMakeFiles/SDL2.dir/src/joystick/darwin/SDL_iokitjoystick.c.o
+[ 91%] Building OBJC object CMakeFiles/SDL2.dir/src/joystick/iphoneos/SDL_mfijoystick.m.o
+[ 91%] Building C object CMakeFiles/SDL2.dir/src/haptic/darwin/SDL_syshaptic.c.o
+[ 91%] Building C object CMakeFiles/SDL2.dir/src/power/macosx/SDL_syspower.c.o
+[ 92%] Building OBJC object CMakeFiles/SDL2.dir/src/locale/macosx/SDL_syslocale.m.o
+[ 92%] Building C object CMakeFiles/SDL2.dir/src/timer/unix/SDL_systimer.c.o
+[ 92%] Building OBJC object CMakeFiles/SDL2.dir/src/filesystem/cocoa/SDL_sysfilesystem.m.o
+[ 93%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoaclipboard.m.o
+[ 93%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoaevents.m.o
+[ 93%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoakeyboard.m.o
+[ 94%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoamessagebox.m.o
+[ 94%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoametalview.m.o
+[ 95%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoamodes.m.o
+[ 95%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoamouse.m.o
+[ 95%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoaopengl.m.o
+[ 96%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoaopengles.m.o
+[ 96%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoashape.m.o
+[ 96%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoavideo.m.o
+[ 97%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoavulkan.m.o
+[ 97%] Building OBJC object CMakeFiles/SDL2.dir/src/video/cocoa/SDL_cocoawindow.m.o
+[ 97%] Building OBJC object CMakeFiles/SDL2.dir/src/render/metal/SDL_render_metal.m.o
+[ 98%] Building C object CMakeFiles/SDL2.dir/src/thread/pthread/SDL_systhread.c.o
+[ 98%] Building C object CMakeFiles/SDL2.dir/src/thread/pthread/SDL_sysmutex.c.o
+[ 99%] Building C object CMakeFiles/SDL2.dir/src/thread/pthread/SDL_syscond.c.o
+[ 99%] Building C object CMakeFiles/SDL2.dir/src/thread/pthread/SDL_systls.c.o
+[ 99%] Building C object CMakeFiles/SDL2.dir/src/thread/pthread/SDL_syssem.c.o
+[100%] Building C object CMakeFiles/SDL2.dir/src/sensor/dummy/SDL_dummysensor.c.o
+[100%] Linking C shared library libSDL2-2.0.dylib
+[100%] Built target SDL2
+Install the project...
+-- Install configuration: "Release"
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/libSDL2-2.0.0.dylib
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/libSDL2-2.0.dylib
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/libSDL2main.a
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/libSDL2_test.a
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/cmake/SDL2/SDL2Targets.cmake
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/cmake/SDL2/SDL2Targets-release.cmake
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/cmake/SDL2/SDL2mainTargets.cmake
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/cmake/SDL2/SDL2mainTargets-release.cmake
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/cmake/SDL2/SDL2testTargets.cmake
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/cmake/SDL2/SDL2testTargets-release.cmake
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/cmake/SDL2/SDL2Config.cmake
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/cmake/SDL2/SDL2ConfigVersion.cmake
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_assert.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_atomic.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_audio.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_bits.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_blendmode.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_clipboard.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_copying.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_cpuinfo.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_egl.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_endian.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_error.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_events.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_filesystem.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_gamecontroller.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_gesture.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_guid.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_haptic.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_hidapi.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_hints.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_joystick.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_keyboard.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_keycode.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_loadso.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_locale.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_log.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_main.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_messagebox.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_metal.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_misc.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_mouse.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_mutex.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_name.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_opengl.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_opengl_glext.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_opengles.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_opengles2.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_opengles2_gl2.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_opengles2_gl2ext.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_opengles2_gl2platform.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_opengles2_khrplatform.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_pixels.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_platform.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_power.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_quit.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_rect.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_render.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_rwops.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_scancode.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_sensor.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_shape.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_stdinc.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_surface.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_system.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_syswm.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test_assert.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test_common.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test_compare.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test_crc32.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test_font.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test_fuzzer.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test_harness.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test_images.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test_log.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test_md5.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test_memory.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_test_random.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_thread.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_timer.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_touch.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_types.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_version.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_video.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_vulkan.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/begin_code.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/close_code.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_revision.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/include/SDL2/SDL_config.h
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/share/licenses/SDL2/LICENSE.txt
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/pkgconfig/sdl2.pc
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib/libSDL2.dylib
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/bin/sdl2-config
+-- Installing: /Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/share/aclocal/sdl2.m4
+cargo:root=/Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out
+cargo:rustc-link-search=/Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib64
+cargo:rustc-link-search=/Users/danieloraca/Daniel/donkey-bas/target/debug/build/sdl2-sys-0d4ec481f6ff8465/out/lib
+cargo:include=/Users/danieloraca/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdl2-sys-0.38.0/SDL/include
+cargo:rustc-flags=-l SDL2

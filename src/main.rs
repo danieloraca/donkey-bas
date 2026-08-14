@@ -1,7 +1,8 @@
-use std::io::{Write, stdout};
 use std::time::{Duration, Instant, SystemTime};
 
 use font8x8::{BASIC_FONTS, UnicodeFonts};
+use sdl2::AudioSubsystem;
+use sdl2::audio::{AudioQueue, AudioSpecDesired};
 use sdl2::event::Event;
 use sdl2::keyboard::{Keycode, Scancode};
 use sdl2::pixels::PixelFormatEnum;
@@ -148,15 +149,96 @@ fn seed_now() -> u32 {
         .unwrap_or(0xC0FFEE_u32)
 }
 
-fn beep(sound_on: bool, count: u8) {
-    if !sound_on {
-        return;
+#[derive(Clone, Copy)]
+enum SoundEffect {
+    Start,
+    Move(Lane),
+    Score,
+    Crash,
+    Toggle,
+}
+
+struct SoundEngine {
+    queue: AudioQueue<f32>,
+    sample_rate: f32,
+}
+
+impl SoundEngine {
+    fn new(audio: &AudioSubsystem) -> Result<Self, String> {
+        let desired = AudioSpecDesired {
+            freq: Some(44_100),
+            channels: Some(1),
+            samples: Some(512),
+        };
+        let queue = audio.open_queue::<f32, _>(None, &desired)?;
+        let sample_rate = queue.spec().freq as f32;
+        queue.resume();
+        Ok(Self { queue, sample_rate })
     }
-    let mut out = stdout();
-    for _ in 0..count {
-        let _ = out.write_all(b"\x07");
+
+    fn tone(&self, output: &mut Vec<f32>, frequency: f32, milliseconds: u32, volume: f32) {
+        let count = (self.sample_rate * milliseconds as f32 / 1_000.0) as usize;
+        for i in 0..count {
+            let phase = (i as f32 * frequency / self.sample_rate).fract();
+            let square = if phase < 0.5 { 1.0 } else { -1.0 };
+            let attack = (i as f32 / 48.0).min(1.0);
+            let release = ((count - i) as f32 / 120.0).min(1.0);
+            output.push(square * volume * attack * release);
+        }
     }
-    let _ = out.flush();
+
+    fn rest(&self, output: &mut Vec<f32>, milliseconds: u32) {
+        let count = (self.sample_rate * milliseconds as f32 / 1_000.0) as usize;
+        output.resize(output.len() + count, 0.0);
+    }
+
+    fn noise(&self, output: &mut Vec<f32>, milliseconds: u32, volume: f32) {
+        let count = (self.sample_rate * milliseconds as f32 / 1_000.0) as usize;
+        let mut lfsr = 0xACE1_u16;
+        for i in 0..count {
+            let bit = (lfsr ^ (lfsr >> 1)) & 1;
+            lfsr = (lfsr >> 1) | (bit << 15);
+            let sample = if lfsr & 1 == 0 { -1.0 } else { 1.0 };
+            let envelope = 1.0 - i as f32 / count as f32;
+            output.push(sample * volume * envelope);
+        }
+    }
+
+    fn play(&self, enabled: bool, effect: SoundEffect) {
+        if !enabled {
+            return;
+        }
+
+        let mut samples = Vec::new();
+        match effect {
+            SoundEffect::Start => {
+                self.queue.clear();
+                for frequency in [220.0, 330.0, 440.0, 660.0] {
+                    self.tone(&mut samples, frequency, 55, 0.16);
+                    self.rest(&mut samples, 12);
+                }
+            }
+            SoundEffect::Move(lane) => {
+                let frequency = if lane == Lane::Left { 330.0 } else { 440.0 };
+                self.tone(&mut samples, frequency, 32, 0.09);
+            }
+            SoundEffect::Score => {
+                self.tone(&mut samples, 660.0, 55, 0.14);
+                self.tone(&mut samples, 880.0, 90, 0.16);
+            }
+            SoundEffect::Crash => {
+                self.queue.clear();
+                self.tone(&mut samples, 140.0, 90, 0.18);
+                self.noise(&mut samples, 280, 0.20);
+            }
+            SoundEffect::Toggle => self.tone(&mut samples, 520.0, 70, 0.12),
+        }
+
+        // Avoid building a long backlog if several events happen at once.
+        if self.queue.size() < (self.sample_rate as u32 * 2) {
+            let _ = self.queue.queue_audio(&samples);
+        }
+    }
 }
 
 fn clear(buffer: &mut [u8], color: [u8; 3]) {
@@ -336,9 +418,9 @@ fn collides(game: &Game) -> bool {
     donkey_top <= car_bottom && donkey_bottom >= car_top
 }
 
-fn update_logic(game: &mut Game) {
+fn update_logic(game: &mut Game) -> Option<SoundEffect> {
     if !game.started || game.over {
-        return;
+        return None;
     }
 
     let step = game.donkey_speed() / FPS as f32;
@@ -347,15 +429,16 @@ fn update_logic(game: &mut Game) {
 
     if collides(game) {
         game.over = true;
-        beep(game.sound_on, 3);
-        return;
+        return Some(SoundEffect::Crash);
     }
 
     if game.donkey_y > ROAD_BOTTOM as f32 {
         game.score += 1;
-        beep(game.sound_on, 1);
         game.spawn_donkey();
+        return Some(SoundEffect::Score);
     }
+
+    None
 }
 
 fn draw(buffer: &mut [u8], game: &Game) {
@@ -407,6 +490,8 @@ fn draw(buffer: &mut [u8], game: &Game) {
 
 fn main() -> Result<(), String> {
     let sdl = sdl2::init()?;
+    let audio = sdl.audio()?;
+    let sounds = SoundEngine::new(&audio)?;
     let video = sdl.video()?;
     let window = video
         .window(
@@ -462,7 +547,7 @@ fn main() -> Result<(), String> {
                     ..
                 } => {
                     game.sound_on = !game.sound_on;
-                    beep(game.sound_on, 1);
+                    sounds.play(game.sound_on, SoundEffect::Toggle);
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Space),
@@ -471,7 +556,7 @@ fn main() -> Result<(), String> {
                 } if !game.started => {
                     game.started = true;
                     game.spawn_donkey();
-                    beep(game.sound_on, 1);
+                    sounds.play(game.sound_on, SoundEffect::Start);
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::R),
@@ -479,7 +564,7 @@ fn main() -> Result<(), String> {
                     ..
                 } if game.over => {
                     game.reset(seed_now());
-                    beep(game.sound_on, 1);
+                    sounds.play(game.sound_on, SoundEffect::Start);
                 }
                 _ => {}
             }
@@ -491,9 +576,11 @@ fn main() -> Result<(), String> {
         if game.started && !game.over {
             if left_down && !left_was_down && game.car_lane != Lane::Left {
                 game.car_lane = Lane::Left;
+                sounds.play(game.sound_on, SoundEffect::Move(Lane::Left));
             }
             if right_down && !right_was_down && game.car_lane != Lane::Right {
                 game.car_lane = Lane::Right;
+                sounds.play(game.sound_on, SoundEffect::Move(Lane::Right));
             }
         }
         left_was_down = left_down;
@@ -503,7 +590,9 @@ fn main() -> Result<(), String> {
         accumulator += now.saturating_duration_since(last_frame);
         last_frame = now;
         while accumulator >= FRAME_TIME {
-            update_logic(&mut game);
+            if let Some(effect) = update_logic(&mut game) {
+                sounds.play(game.sound_on, effect);
+            }
             accumulator -= FRAME_TIME;
         }
 
