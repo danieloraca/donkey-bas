@@ -513,7 +513,9 @@ fn draw_donkey(buffer: &mut [u8], game: &Game) {
 pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
     draw_background(buffer, game.city_tick);
     draw_road(buffer, game.road_scroll);
-    draw_donkey(buffer, game);
+    if game.started {
+        draw_donkey(buffer, game);
+    }
     draw_car(buffer, game);
     draw_crash_effect(buffer, game);
 
@@ -534,14 +536,32 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
     );
 
     if !game.started {
-        fill_rect(buffer, 58, 70, 204, 66, SHADOW);
-        fill_rect(buffer, 58, 70, 204, 2, ROAD_EDGE);
-        draw_text(buffer, 88, 82, "DODGE THE DONKEYS", WHITE, 1);
-        draw_text(buffer, 76, 100, "[SPACE] START  [M] SOUND", CYAN, 1);
+        let pulse = if (game.city_tick / 24) % 2 == 0 {
+            ROAD_EDGE
+        } else {
+            CYAN
+        };
+        fill_rect(buffer, 48, 60, 224, 90, SHADOW);
+        fill_rect(buffer, 48, 60, 224, 3, pulse);
+        fill_rect(buffer, 48, 147, 224, 3, pulse);
+        draw_text(buffer, 80, 72, "DONKEY RUN", WHITE, 2);
+        draw_text(buffer, 84, 96, "A RUST ARCADE REMIX", ROAD_EDGE, 1);
+        draw_text(
+            buffer,
+            76,
+            116,
+            "[SPACE] START  [M] SOUND",
+            if (game.city_tick / 30) % 2 == 0 {
+                CYAN
+            } else {
+                WHITE
+            },
+            1,
+        );
         draw_text(
             buffer,
             120,
-            118,
+            134,
             &format!("BEST {:05}", game.best_score),
             YELLOW,
             1,
@@ -590,6 +610,20 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
         let near_miss_age = game.city_tick.saturating_sub(game.near_miss_started_at);
         if game.near_miss_started_at > 0 && near_miss_age < FPS {
             draw_text(buffer, 104, 62, "NEAR MISS!", YELLOW, 1);
+        }
+        if game.countdown_ticks > 0 {
+            let (label, x, scale) = if game.countdown_ticks > 150 {
+                ("3", 144, 4)
+            } else if game.countdown_ticks > 90 {
+                ("2", 144, 4)
+            } else if game.countdown_ticks > 30 {
+                ("1", 144, 4)
+            } else {
+                ("GO!", 136, 2)
+            };
+            fill_rect(buffer, 128, 76, 64, 48, SHADOW);
+            fill_rect(buffer, 128, 76, 64, 3, ROAD_EDGE);
+            draw_text(buffer, x, 86, label, YELLOW, scale);
         }
     }
 }

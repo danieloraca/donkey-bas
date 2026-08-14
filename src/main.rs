@@ -81,8 +81,7 @@ fn main() -> Result<(), String> {
                     repeat: false,
                     ..
                 } if !game.started => {
-                    game.started = true;
-                    game.spawn_donkey();
+                    game.start();
                     sounds.play(game.sound_on, SoundEffect::Start);
                 }
                 Event::KeyDown {
@@ -126,6 +125,8 @@ fn main() -> Result<(), String> {
                     }
                 }
                 let effect = match event {
+                    GameEvent::Countdown => SoundEffect::Countdown,
+                    GameEvent::Go => SoundEffect::Go,
                     GameEvent::Score => SoundEffect::Score,
                     GameEvent::NearMiss => SoundEffect::NearMiss,
                     GameEvent::Hit => SoundEffect::Hit,

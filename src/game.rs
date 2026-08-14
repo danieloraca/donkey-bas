@@ -3,6 +3,7 @@ use std::time::SystemTime;
 pub(crate) const WIDTH: usize = 320;
 pub(crate) const HEIGHT: usize = 200;
 pub(crate) const FPS: u64 = 60;
+pub(crate) const COUNTDOWN_TOTAL: u16 = FPS as u16 * 3 + FPS as u16 / 2;
 
 pub(crate) const ROAD_TOP: i32 = 54;
 pub(crate) const ROAD_BOTTOM: i32 = 199;
@@ -34,6 +35,8 @@ impl Lane {
 
 #[derive(Clone, Copy)]
 pub(crate) enum GameEvent {
+    Countdown,
+    Go,
     Score,
     NearMiss,
     Hit,
@@ -56,6 +59,7 @@ pub(crate) struct Game {
     pub(crate) road_scroll: f32,
     pub(crate) city_tick: u64,
     pub(crate) crash_started_at: u64,
+    pub(crate) countdown_ticks: u16,
     pub(crate) invulnerable_until: u64,
     pub(crate) near_miss_started_at: u64,
     pub(crate) score: u32,
@@ -83,6 +87,7 @@ impl Game {
             road_scroll: 0.0,
             city_tick: 0,
             crash_started_at: 0,
+            countdown_ticks: 0,
             invulnerable_until: 0,
             near_miss_started_at: 0,
             score: 0,
@@ -107,8 +112,7 @@ impl Game {
         self.sound_on = sound_on;
         self.city_tick = city_tick;
         self.best_score = best_score;
-        self.started = true;
-        self.spawn_donkey();
+        self.start();
     }
 
     fn next_u32(&mut self) -> u32 {
@@ -155,11 +159,30 @@ impl Game {
         if distance.abs() < 0.002 {
             self.car_position = target;
         }
+        if !self.started {
+            self.road_scroll = (self.road_scroll + 0.35) % 364.0;
+        }
+    }
+
+    pub(crate) fn start(&mut self) {
+        self.started = true;
+        self.countdown_ticks = COUNTDOWN_TOTAL;
+        self.spawn_donkey();
     }
 
     pub(crate) fn update(&mut self) -> Option<GameEvent> {
         if !self.started || self.over {
             return None;
+        }
+
+        if self.countdown_ticks > 0 {
+            self.countdown_ticks -= 1;
+            self.road_scroll = (self.road_scroll + 0.35) % 364.0;
+            return match self.countdown_ticks {
+                150 | 90 => Some(GameEvent::Countdown),
+                30 => Some(GameEvent::Go),
+                _ => None,
+            };
         }
 
         let step = self.donkey_speed() / FPS as f32;
@@ -427,5 +450,22 @@ mod tests {
         assert_eq!(game.dodges, 1);
         assert_eq!(game.combo, 1);
         assert_eq!(game.score, 2);
+    }
+
+    #[test]
+    fn countdown_holds_traffic_and_emits_timed_cues() {
+        let mut game = Game::new(1);
+        game.start();
+        let starting_y = game.donkey_y;
+
+        assert!(game.update().is_none());
+        assert_eq!(game.donkey_y, starting_y);
+        assert_eq!(game.countdown_ticks, COUNTDOWN_TOTAL - 1);
+
+        game.countdown_ticks = 151;
+        assert!(matches!(game.update(), Some(GameEvent::Countdown)));
+        game.countdown_ticks = 31;
+        assert!(matches!(game.update(), Some(GameEvent::Go)));
+        assert_eq!(game.donkey_y, starting_y);
     }
 }

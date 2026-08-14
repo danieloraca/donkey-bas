@@ -6,6 +6,8 @@ use crate::game::Lane;
 #[derive(Clone, Copy)]
 pub(crate) enum SoundEffect {
     Start,
+    Countdown,
+    Go,
     Move(Lane),
     Score,
     NearMiss,
@@ -73,6 +75,11 @@ impl SoundEngine {
                     self.tone(&mut samples, frequency, 55, 0.16);
                     self.rest(&mut samples, 12);
                 }
+            }
+            SoundEffect::Countdown => self.tone(&mut samples, 440.0, 90, 0.15),
+            SoundEffect::Go => {
+                self.tone(&mut samples, 660.0, 65, 0.16);
+                self.tone(&mut samples, 880.0, 110, 0.18);
             }
             SoundEffect::Move(lane) => {
                 let frequency = if lane == Lane::Left { 330.0 } else { 440.0 };
