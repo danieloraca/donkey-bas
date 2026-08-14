@@ -35,6 +35,8 @@ impl Lane {
 #[derive(Clone, Copy)]
 pub(crate) enum GameEvent {
     Score,
+    NearMiss,
+    Hit,
     Crash,
 }
 
@@ -54,9 +56,15 @@ pub(crate) struct Game {
     pub(crate) road_scroll: f32,
     pub(crate) city_tick: u64,
     pub(crate) crash_started_at: u64,
+    pub(crate) invulnerable_until: u64,
+    pub(crate) near_miss_started_at: u64,
     pub(crate) score: u32,
+    pub(crate) dodges: u32,
     pub(crate) best_score: u32,
     pub(crate) new_high_score: bool,
+    pub(crate) combo: u32,
+    pub(crate) lives: u8,
+    near_miss_qualified: bool,
     pub(crate) over: bool,
     pub(crate) started: bool,
     pub(crate) sound_on: bool,
@@ -75,9 +83,15 @@ impl Game {
             road_scroll: 0.0,
             city_tick: 0,
             crash_started_at: 0,
+            invulnerable_until: 0,
+            near_miss_started_at: 0,
             score: 0,
+            dodges: 0,
             best_score: 0,
             new_high_score: false,
+            combo: 0,
+            lives: 3,
+            near_miss_qualified: false,
             over: false,
             started: false,
             sound_on: true,
@@ -112,10 +126,10 @@ impl Game {
             Lane::Right
         };
         self.donkey_position = self.donkey_lane.direction() as f32;
-        let crossing_chance = if self.score < 4 {
+        let crossing_chance = if self.dodges < 4 {
             0
         } else {
-            (1 + self.score / 20).min(3)
+            (1 + self.dodges / 20).min(3)
         };
         self.obstacle_pattern = if (random >> 8) % 8 < crossing_chance {
             ObstaclePattern::Crossing
@@ -123,14 +137,15 @@ impl Game {
             ObstaclePattern::Straight
         };
         self.donkey_y = ROAD_TOP as f32;
+        self.near_miss_qualified = false;
     }
 
     fn donkey_speed(&self) -> f32 {
-        55.0 + 30.0 * (1.0 + self.score as f32 / 5.0).ln()
+        55.0 + 30.0 * (1.0 + self.dodges as f32 / 5.0).ln()
     }
 
     pub(crate) fn level(&self) -> u32 {
-        1 + self.score / 5
+        1 + self.dodges / 5
     }
 
     pub(crate) fn update_ambient_motion(&mut self) {
@@ -152,20 +167,41 @@ impl Game {
         self.update_obstacle_motion();
         self.road_scroll = (self.road_scroll + step) % 364.0;
 
-        if self.collides() {
-            self.over = true;
+        if self.city_tick >= self.invulnerable_until && self.collides() {
+            self.combo = 0;
+            self.lives -= 1;
             self.crash_started_at = self.city_tick;
-            return Some(GameEvent::Crash);
+            if self.lives == 0 {
+                self.over = true;
+                return Some(GameEvent::Crash);
+            }
+            self.invulnerable_until = self.city_tick + FPS * 3 / 2;
+            self.spawn_donkey();
+            return Some(GameEvent::Hit);
+        }
+
+        if self.is_near_miss() {
+            self.near_miss_qualified = true;
         }
 
         if self.donkey_y > ROAD_BOTTOM as f32 {
-            self.score += 1;
+            self.dodges += 1;
+            let event = if self.near_miss_qualified {
+                self.combo += 1;
+                self.score += 1 + self.combo.min(5);
+                self.near_miss_started_at = self.city_tick;
+                GameEvent::NearMiss
+            } else {
+                self.combo = 0;
+                self.score += 1;
+                GameEvent::Score
+            };
             if self.score > self.best_score {
                 self.best_score = self.score;
                 self.new_high_score = true;
             }
             self.spawn_donkey();
-            return Some(GameEvent::Score);
+            return Some(event);
         }
 
         None
@@ -201,6 +237,30 @@ impl Game {
         );
         let car_x = road_position_x(self.car_position, CAR_Y, CAR_W, self.road_scroll);
         donkey_x + donkey_width - 4 >= car_x + 4 && donkey_x + 4 <= car_x + CAR_W - 4
+    }
+
+    fn is_near_miss(&self) -> bool {
+        let scale = donkey_scale(self.donkey_y);
+        let donkey_top = self.donkey_y;
+        let donkey_bottom = self.donkey_y + DONKEY_BASE_H as f32 * scale - 1.0;
+        if donkey_top > (CAR_Y + CAR_H - 1) as f32 || donkey_bottom < CAR_Y as f32 {
+            return false;
+        }
+
+        let donkey_width = scaled(DONKEY_BASE_W, scale);
+        let donkey_x = road_position_x(
+            self.donkey_position,
+            self.donkey_y.round() as i32,
+            donkey_width,
+            self.road_scroll,
+        );
+        let car_x = road_position_x(self.car_position, CAR_Y, CAR_W, self.road_scroll);
+        let gap = if donkey_x > car_x {
+            donkey_x - (car_x + CAR_W)
+        } else {
+            car_x - (donkey_x + donkey_width)
+        };
+        (1..=14).contains(&gap)
     }
 }
 
@@ -261,13 +321,13 @@ mod tests {
         assert_eq!(game.level(), 1);
         assert_eq!(game.donkey_speed(), 55.0);
 
-        game.score = 5;
+        game.dodges = 5;
         let level_two_speed = game.donkey_speed();
-        game.score = 20;
+        game.dodges = 20;
         let level_five_speed = game.donkey_speed();
-        game.score = 100;
+        game.dodges = 100;
         let late_game_speed = game.donkey_speed();
-        game.score = 1_000;
+        game.dodges = 1_000;
         let very_late_game_speed = game.donkey_speed();
 
         assert!(level_two_speed > 55.0);
@@ -328,5 +388,44 @@ mod tests {
         assert!(matches!(game.update(), Some(GameEvent::Score)));
         assert_eq!(game.best_score, 8);
         assert!(game.new_high_score);
+    }
+
+    #[test]
+    fn collisions_consume_lives_before_ending_the_run() {
+        let mut game = Game::new(1);
+        game.started = true;
+        game.car_position = -1.0;
+        game.donkey_lane = Lane::Left;
+        game.donkey_position = -1.0;
+        game.obstacle_pattern = ObstaclePattern::Straight;
+        game.donkey_y = CAR_Y as f32;
+
+        assert!(matches!(game.update(), Some(GameEvent::Hit)));
+        assert_eq!(game.lives, 2);
+        assert!(!game.over);
+
+        game.lives = 1;
+        game.invulnerable_until = 0;
+        game.donkey_lane = Lane::Left;
+        game.donkey_position = -1.0;
+        game.obstacle_pattern = ObstaclePattern::Straight;
+        game.donkey_y = CAR_Y as f32;
+        assert!(matches!(game.update(), Some(GameEvent::Crash)));
+        assert!(game.over);
+    }
+
+    #[test]
+    fn near_misses_build_combo_and_award_bonus_points() {
+        let mut game = Game::new(1);
+        game.started = true;
+        game.near_miss_qualified = true;
+        game.donkey_position = 1.0;
+        game.obstacle_pattern = ObstaclePattern::Straight;
+        game.donkey_y = ROAD_BOTTOM as f32 + 1.0;
+
+        assert!(matches!(game.update(), Some(GameEvent::NearMiss)));
+        assert_eq!(game.dodges, 1);
+        assert_eq!(game.combo, 1);
+        assert_eq!(game.score, 2);
     }
 }

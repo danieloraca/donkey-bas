@@ -8,6 +8,8 @@ pub(crate) enum SoundEffect {
     Start,
     Move(Lane),
     Score,
+    NearMiss,
+    Hit,
     Crash,
     Toggle,
 }
@@ -79,6 +81,16 @@ impl SoundEngine {
             SoundEffect::Score => {
                 self.tone(&mut samples, 660.0, 55, 0.14);
                 self.tone(&mut samples, 880.0, 90, 0.16);
+            }
+            SoundEffect::NearMiss => {
+                for frequency in [740.0, 988.0, 1_318.0] {
+                    self.tone(&mut samples, frequency, 45, 0.15);
+                }
+            }
+            SoundEffect::Hit => {
+                self.queue.clear();
+                self.tone(&mut samples, 180.0, 70, 0.17);
+                self.noise(&mut samples, 110, 0.12);
             }
             SoundEffect::Crash => {
                 self.queue.clear();

@@ -1,9 +1,9 @@
 use font8x8::{BASIC_FONTS, UnicodeFonts};
 
 use crate::game::{
-    CAR_H, CAR_W, CAR_Y, DONKEY_BASE_H, DONKEY_BASE_W, Game, HEIGHT, ObstaclePattern, ROAD_BOTTOM,
-    ROAD_CENTER_X, ROAD_TOP, SPRITE_SCALE, WIDTH, donkey_scale, road_center, road_half_width,
-    road_position_x, scaled,
+    CAR_H, CAR_W, CAR_Y, DONKEY_BASE_H, DONKEY_BASE_W, FPS, Game, HEIGHT, ObstaclePattern,
+    ROAD_BOTTOM, ROAD_CENTER_X, ROAD_TOP, SPRITE_SCALE, WIDTH, donkey_scale, road_center,
+    road_half_width, road_position_x, scaled,
 };
 
 pub(crate) const SCALE: u32 = 3;
@@ -413,6 +413,9 @@ fn draw_sprite(buffer: &mut [u8], sprite: &[&str], x: i32, y: i32, color: [u8; 3
 }
 
 fn draw_car(buffer: &mut [u8], game: &Game) {
+    if !game.over && game.city_tick < game.invulnerable_until && (game.city_tick / 4) % 2 == 0 {
+        return;
+    }
     let mut x = road_position_x(game.car_position, CAR_Y, CAR_W, game.road_scroll);
     let crash_age = game.city_tick.saturating_sub(game.crash_started_at);
     if game.over && crash_age < 18 {
@@ -428,11 +431,9 @@ fn draw_car(buffer: &mut [u8], game: &Game) {
 }
 
 fn draw_crash_effect(buffer: &mut [u8], game: &Game) {
-    if !game.over {
-        return;
-    }
     let age = game.city_tick.saturating_sub(game.crash_started_at);
-    if age > 45 {
+    let effect_duration = if game.over { 45 } else { 20 };
+    if game.crash_started_at == 0 || age > effect_duration {
         return;
     }
 
@@ -521,6 +522,7 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
     draw_text(buffer, 8, 6, "DONKEY", WHITE, 1);
     draw_text(buffer, 56, 6, "//", ROAD_EDGE, 1);
     draw_text(buffer, 72, 6, "RUST RUN", CYAN, 1);
+    draw_text(buffer, 144, 6, &format!("L{}", game.lives), ROAD_EDGE, 1);
     draw_text(buffer, 168, 6, &format!("LV {:02}", game.level()), WHITE, 1);
     draw_text(
         buffer,
@@ -582,5 +584,12 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
             YELLOW,
             1,
         );
+        if game.combo > 0 {
+            draw_text(buffer, 120, 188, &format!("COMBO X{}", game.combo), CYAN, 1);
+        }
+        let near_miss_age = game.city_tick.saturating_sub(game.near_miss_started_at);
+        if game.near_miss_started_at > 0 && near_miss_age < FPS {
+            draw_text(buffer, 104, 62, "NEAR MISS!", YELLOW, 1);
+        }
     }
 }

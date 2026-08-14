@@ -120,15 +120,15 @@ fn main() -> Result<(), String> {
             game.city_tick = game.city_tick.wrapping_add(1);
             game.update_ambient_motion();
             if let Some(event) = game.update() {
-                let effect = match event {
-                    GameEvent::Score => {
-                        if game.new_high_score {
-                            if let Err(error) = score_store.save(game.best_score) {
-                                eprintln!("could not save high score: {error}");
-                            }
-                        }
-                        SoundEffect::Score
+                if matches!(event, GameEvent::Score | GameEvent::NearMiss) && game.new_high_score {
+                    if let Err(error) = score_store.save(game.best_score) {
+                        eprintln!("could not save high score: {error}");
                     }
+                }
+                let effect = match event {
+                    GameEvent::Score => SoundEffect::Score,
+                    GameEvent::NearMiss => SoundEffect::NearMiss,
+                    GameEvent::Hit => SoundEffect::Hit,
                     GameEvent::Crash => SoundEffect::Crash,
                 };
                 sounds.play(game.sound_on, effect);
