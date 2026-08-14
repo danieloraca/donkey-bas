@@ -14,6 +14,7 @@ pub(crate) enum SoundEffect {
     Resume,
     Move(Lane),
     CrossingWarning,
+    Cassette,
     Score,
     NearMiss,
     Hit,
@@ -111,6 +112,11 @@ impl SoundEngine {
                 self.rest(&mut samples, 22);
                 self.tone(&mut samples, 520.0, 72, 0.16);
             }
+            SoundEffect::Cassette => {
+                for frequency in [660.0, 880.0, 1_100.0, 1_320.0] {
+                    self.tone(&mut samples, frequency, 42, 0.15);
+                }
+            }
             SoundEffect::Score => {
                 self.tone(&mut samples, 660.0, 55, 0.14);
                 self.tone(&mut samples, 880.0, 90, 0.16);
@@ -134,7 +140,7 @@ impl SoundEngine {
         let _ = self.queue.queue_audio(&samples);
     }
 
-    pub(crate) fn update_music(&self, enabled: bool, active: bool, level: u32) {
+    pub(crate) fn update_music(&self, enabled: bool, active: bool, level: u32, boosted: bool) {
         if !enabled || !active {
             if self.music_running.replace(false) {
                 self.queue.clear();
@@ -150,13 +156,13 @@ impl SoundEngine {
         }
 
         let step = self.music_step.get();
-        let chunk = self.music_chunk(level, step);
+        let chunk = self.music_chunk(level, step, boosted);
         if self.queue.queue_audio(&chunk).is_ok() {
             self.music_step.set(step.wrapping_add(1));
         }
     }
 
-    fn music_chunk(&self, level: u32, step: u64) -> Vec<f32> {
+    fn music_chunk(&self, level: u32, step: u64, boosted: bool) -> Vec<f32> {
         let bpm = music_bpm(level) as f32;
         let duration = 60.0 / bpm / 4.0;
         let count = (self.sample_rate * duration) as usize;
@@ -178,6 +184,11 @@ impl SoundEngine {
             } else {
                 0.0
             };
+            let cassette_lead = if boosted && step % 2 == 0 {
+                square_wave(lead_frequency * 2.0, time) * 0.035 * gate
+            } else {
+                0.0
+            };
 
             let kick = if step % 4 == 0 && position < 0.32 {
                 let envelope = 1.0 - position / 0.32;
@@ -196,7 +207,9 @@ impl SoundEngine {
             };
 
             let release = ((count - index) as f32 / 48.0).min(1.0);
-            output.push(((lead + bass + harmony + kick + hat) * release).clamp(-0.35, 0.35));
+            output.push(
+                ((lead + bass + harmony + cassette_lead + kick + hat) * release).clamp(-0.35, 0.35),
+            );
         }
         output
     }

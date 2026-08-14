@@ -226,7 +226,11 @@ fn main() -> Result<(), String> {
                 game.update_ambient_motion();
             }
             if let Some(event) = game.update() {
-                if matches!(event, GameEvent::Score | GameEvent::NearMiss) && game.new_high_score {
+                if matches!(
+                    event,
+                    GameEvent::Score | GameEvent::NearMiss | GameEvent::Cassette
+                ) && game.new_high_score
+                {
                     if let Err(error) = score_store.save(game.best_score) {
                         eprintln!("could not save high score: {error}");
                     }
@@ -235,6 +239,7 @@ fn main() -> Result<(), String> {
                     GameEvent::Countdown => SoundEffect::Countdown,
                     GameEvent::Go => SoundEffect::Go,
                     GameEvent::CrossingWarning => SoundEffect::CrossingWarning,
+                    GameEvent::Cassette => SoundEffect::Cassette,
                     GameEvent::Score => SoundEffect::Score,
                     GameEvent::NearMiss => SoundEffect::NearMiss,
                     GameEvent::Hit => SoundEffect::Hit,
@@ -249,6 +254,7 @@ fn main() -> Result<(), String> {
             game.sound_on,
             game.started && !game.over && !game.paused,
             game.level(),
+            game.music_boost_until > game.city_tick,
         );
 
         draw(&mut buffer, &game);

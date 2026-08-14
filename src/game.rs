@@ -16,9 +16,12 @@ pub(crate) const CAR_W: i32 = 16 * SPRITE_SCALE;
 pub(crate) const CAR_H: i32 = 12 * SPRITE_SCALE;
 pub(crate) const DONKEY_BASE_W: i32 = 16;
 pub(crate) const DONKEY_BASE_H: i32 = 12;
+pub(crate) const CASSETTE_BASE_W: i32 = 10;
+pub(crate) const CASSETTE_BASE_H: i32 = 7;
 pub(crate) const CAR_Y: i32 = 154;
+const CASSETTE_POINTS: u32 = 5;
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum Lane {
     Left,
     Right,
@@ -38,13 +41,14 @@ pub(crate) enum GameEvent {
     Countdown,
     Go,
     CrossingWarning,
+    Cassette,
     Score,
     NearMiss,
     Hit,
     Crash,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum ObstaclePattern {
     Straight,
     Crossing,
@@ -57,6 +61,9 @@ pub(crate) struct Game {
     pub(crate) donkey_position: f32,
     pub(crate) obstacle_pattern: ObstaclePattern,
     pub(crate) donkey_y: f32,
+    pub(crate) cassette_lane: Lane,
+    pub(crate) cassette_y: f32,
+    pub(crate) cassette_active: bool,
     pub(crate) road_scroll: f32,
     pub(crate) city_tick: u64,
     pub(crate) crash_started_at: u64,
@@ -64,8 +71,11 @@ pub(crate) struct Game {
     pub(crate) invulnerable_until: u64,
     pub(crate) near_miss_started_at: u64,
     pub(crate) crossing_tutorial_until: u64,
+    pub(crate) cassette_collected_at: u64,
+    pub(crate) music_boost_until: u64,
     pub(crate) score: u32,
     pub(crate) dodges: u32,
+    pub(crate) cassettes: u32,
     pub(crate) best_score: u32,
     pub(crate) new_high_score: bool,
     pub(crate) combo: u32,
@@ -73,6 +83,7 @@ pub(crate) struct Game {
     near_miss_qualified: bool,
     crossing_warning_played: bool,
     crossing_tutorial_seen: bool,
+    cassette_collected_this_wave: bool,
     pub(crate) over: bool,
     pub(crate) paused: bool,
     pub(crate) started: bool,
@@ -89,6 +100,9 @@ impl Game {
             donkey_position: 1.0,
             obstacle_pattern: ObstaclePattern::Straight,
             donkey_y: ROAD_TOP as f32,
+            cassette_lane: Lane::Right,
+            cassette_y: ROAD_TOP as f32,
+            cassette_active: false,
             road_scroll: 0.0,
             city_tick: 0,
             crash_started_at: 0,
@@ -96,8 +110,11 @@ impl Game {
             invulnerable_until: 0,
             near_miss_started_at: 0,
             crossing_tutorial_until: 0,
+            cassette_collected_at: 0,
+            music_boost_until: 0,
             score: 0,
             dodges: 0,
+            cassettes: 0,
             best_score: 0,
             new_high_score: false,
             combo: 0,
@@ -105,6 +122,7 @@ impl Game {
             near_miss_qualified: false,
             crossing_warning_played: false,
             crossing_tutorial_seen: false,
+            cassette_collected_this_wave: false,
             over: false,
             paused: false,
             started: false,
@@ -147,6 +165,12 @@ impl Game {
             ObstaclePattern::Straight
         };
         self.donkey_y = ROAD_TOP as f32;
+        self.cassette_lane = self.donkey_lane;
+        self.cassette_y = ROAD_TOP as f32 + 42.0;
+        self.cassette_active = self.dodges >= 3
+            && self.obstacle_pattern == ObstaclePattern::Straight
+            && self.next_u32() % 5 == 0;
+        self.cassette_collected_this_wave = false;
         self.near_miss_qualified = false;
         self.crossing_warning_played = false;
         if self.obstacle_pattern == ObstaclePattern::Crossing && !self.crossing_tutorial_seen {
@@ -198,6 +222,7 @@ impl Game {
 
         let step = self.donkey_speed() / FPS as f32;
         self.donkey_y += step;
+        let cassette_collected = self.update_cassette(step);
         let crossing_started = self.update_obstacle_motion();
         self.road_scroll = (self.road_scroll + step) % 364.0;
 
@@ -225,6 +250,9 @@ impl Game {
                 self.score += 1 + self.combo.min(5);
                 self.near_miss_started_at = self.city_tick;
                 GameEvent::NearMiss
+            } else if self.cassette_collected_this_wave {
+                self.score += 1;
+                GameEvent::Score
             } else {
                 self.combo = 0;
                 self.score += 1;
@@ -238,11 +266,62 @@ impl Game {
             return Some(event);
         }
 
+        if cassette_collected {
+            return Some(GameEvent::Cassette);
+        }
+
         if crossing_started {
             return Some(GameEvent::CrossingWarning);
         }
 
         None
+    }
+
+    fn update_cassette(&mut self, step: f32) -> bool {
+        if !self.cassette_active {
+            return false;
+        }
+
+        self.cassette_y += step;
+        if self.cassette_y > ROAD_BOTTOM as f32 {
+            self.cassette_active = false;
+            return false;
+        }
+        if !self.collects_cassette() {
+            return false;
+        }
+
+        self.cassette_active = false;
+        self.cassette_collected_this_wave = true;
+        self.cassette_collected_at = self.city_tick;
+        self.music_boost_until = self.city_tick + FPS * 6;
+        self.cassettes += 1;
+        self.combo += 1;
+        self.score += CASSETTE_POINTS + self.combo.min(5);
+        if self.score > self.best_score {
+            self.best_score = self.score;
+            self.new_high_score = true;
+        }
+        true
+    }
+
+    fn collects_cassette(&self) -> bool {
+        let scale = donkey_scale(self.cassette_y) * 0.8;
+        let cassette_top = self.cassette_y;
+        let cassette_bottom = cassette_top + CASSETTE_BASE_H as f32 * scale;
+        if cassette_top > (CAR_Y + CAR_H) as f32 || cassette_bottom < CAR_Y as f32 {
+            return false;
+        }
+
+        let width = scaled(CASSETTE_BASE_W, scale);
+        let cassette_x = road_position_x(
+            self.cassette_lane.direction() as f32,
+            self.cassette_y.round() as i32,
+            width,
+            self.road_scroll,
+        );
+        let car_x = road_position_x(self.car_position, CAR_Y, CAR_W, self.road_scroll);
+        cassette_x + width >= car_x + 4 && cassette_x <= car_x + CAR_W - 4
     }
 
     fn update_obstacle_motion(&mut self) -> bool {
@@ -450,6 +529,43 @@ mod tests {
         game.reset(1);
         assert!(game.crossing_tutorial_seen);
         assert_eq!(game.crossing_tutorial_until, 0);
+    }
+
+    #[test]
+    fn cassette_pickups_spawn_ahead_of_straight_obstacles() {
+        let mut game = Game::new(0x1234_5678);
+        game.dodges = 3;
+        for _ in 0..500 {
+            game.spawn_donkey();
+            if game.cassette_active {
+                assert_eq!(game.obstacle_pattern, ObstaclePattern::Straight);
+                assert_eq!(game.cassette_lane, game.donkey_lane);
+                assert!(game.cassette_y > game.donkey_y);
+                return;
+            }
+        }
+        panic!("seed did not produce a cassette pickup");
+    }
+
+    #[test]
+    fn collecting_a_cassette_awards_points_combo_and_music_boost() {
+        let mut game = Game::new(1);
+        game.started = true;
+        game.dodges = 3;
+        game.car_lane = Lane::Left;
+        game.car_position = -1.0;
+        game.donkey_position = 1.0;
+        game.donkey_y = ROAD_TOP as f32;
+        game.cassette_lane = Lane::Left;
+        game.cassette_y = CAR_Y as f32;
+        game.cassette_active = true;
+
+        assert!(matches!(game.update(), Some(GameEvent::Cassette)));
+        assert_eq!(game.cassettes, 1);
+        assert_eq!(game.combo, 1);
+        assert_eq!(game.score, CASSETTE_POINTS + 1);
+        assert!(game.music_boost_until > game.city_tick);
+        assert!(!game.cassette_active);
     }
 
     #[test]

@@ -1,9 +1,9 @@
 use font8x8::{BASIC_FONTS, UnicodeFonts};
 
 use crate::game::{
-    CAR_H, CAR_W, CAR_Y, DONKEY_BASE_H, DONKEY_BASE_W, FPS, Game, HEIGHT, ObstaclePattern,
-    ROAD_BOTTOM, ROAD_CENTER_X, ROAD_TOP, SPRITE_SCALE, WIDTH, donkey_scale, road_center,
-    road_half_width, road_position_x, scaled,
+    CAR_H, CAR_W, CAR_Y, CASSETTE_BASE_H, CASSETTE_BASE_W, DONKEY_BASE_H, DONKEY_BASE_W, FPS, Game,
+    HEIGHT, ObstaclePattern, ROAD_BOTTOM, ROAD_CENTER_X, ROAD_TOP, SPRITE_SCALE, WIDTH,
+    donkey_scale, road_center, road_half_width, road_position_x, scaled,
 };
 
 pub(crate) const SCALE: u32 = 3;
@@ -607,6 +607,57 @@ fn draw_donkey(buffer: &mut [u8], game: &Game) {
     );
 }
 
+fn draw_cassette(buffer: &mut [u8], game: &Game) {
+    if !game.cassette_active || game.countdown_ticks > 0 || game.over {
+        return;
+    }
+
+    let y = game.cassette_y.round() as i32;
+    let scale = donkey_scale(game.cassette_y) * 0.8;
+    let width = scaled(CASSETTE_BASE_W, scale);
+    let height = scaled(CASSETTE_BASE_H, scale);
+    let x = road_position_x(
+        game.cassette_lane.direction() as f32,
+        y,
+        width,
+        game.road_scroll,
+    );
+    let pulse = if (game.city_tick / 5) % 2 == 0 {
+        YELLOW
+    } else {
+        WHITE
+    };
+
+    fill_rect(buffer, x + 2, y + height, width - 4, 2, SHADOW);
+    fill_rect(buffer, x, y, width, height, pulse);
+    fill_rect(buffer, x + 2, y + 2, width - 4, height - 4, SHADOW);
+    let reel = scaled(2, scale).max(2);
+    fill_rect(
+        buffer,
+        x + scaled(2, scale),
+        y + scaled(2, scale),
+        reel,
+        reel,
+        CYAN,
+    );
+    fill_rect(
+        buffer,
+        x + width - scaled(4, scale),
+        y + scaled(2, scale),
+        reel,
+        reel,
+        CYAN,
+    );
+    fill_rect(
+        buffer,
+        x + width / 2 - 1,
+        y + height - scaled(2, scale),
+        3,
+        scaled(1, scale).max(1),
+        ROAD_EDGE,
+    );
+}
+
 fn draw_crossing_arrow(buffer: &mut [u8], center_x: i32, y: i32, direction: i32, scale: f32) {
     let length = scaled(5, scale).max(5);
     let thickness = scaled(1, scale).max(1);
@@ -680,6 +731,7 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
     draw_crossing_telegraph(buffer, game);
     draw_speed_particles(buffer, game);
     draw_exhaust(buffer, game);
+    draw_cassette(buffer, game);
     if game.started {
         draw_donkey(buffer, game);
     }
@@ -772,7 +824,23 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
             1,
         );
         if game.combo > 0 {
-            draw_text(buffer, 120, 188, &format!("COMBO X{}", game.combo), CYAN, 1);
+            draw_text(buffer, 132, 188, &format!("COMBO X{}", game.combo), CYAN, 1);
+        }
+        draw_text(
+            buffer,
+            100,
+            188,
+            &format!("T{:02}", game.cassettes),
+            if game.music_boost_until > game.city_tick {
+                YELLOW
+            } else {
+                WHITE
+            },
+            1,
+        );
+        let cassette_age = game.city_tick.saturating_sub(game.cassette_collected_at);
+        if game.cassette_collected_at > 0 && cassette_age < FPS {
+            draw_text(buffer, 112, 74, "TAPE + MIX BOOST!", YELLOW, 1);
         }
         if game.countdown_ticks == 0 && game.crossing_tutorial_until > game.city_tick {
             fill_rect(buffer, 64, 36, 192, 20, SHADOW);
