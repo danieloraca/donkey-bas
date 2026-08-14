@@ -8,6 +8,8 @@ pub(crate) enum SoundEffect {
     Start,
     Countdown,
     Go,
+    Pause,
+    Resume,
     Move(Lane),
     Score,
     NearMiss,
@@ -80,6 +82,14 @@ impl SoundEngine {
             SoundEffect::Go => {
                 self.tone(&mut samples, 660.0, 65, 0.16);
                 self.tone(&mut samples, 880.0, 110, 0.18);
+            }
+            SoundEffect::Pause => {
+                self.tone(&mut samples, 440.0, 55, 0.12);
+                self.tone(&mut samples, 330.0, 90, 0.12);
+            }
+            SoundEffect::Resume => {
+                self.tone(&mut samples, 330.0, 55, 0.12);
+                self.tone(&mut samples, 440.0, 90, 0.12);
             }
             SoundEffect::Move(lane) => {
                 let frequency = if lane == Lane::Left { 330.0 } else { 440.0 };

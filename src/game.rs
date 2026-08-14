@@ -70,6 +70,7 @@ pub(crate) struct Game {
     pub(crate) lives: u8,
     near_miss_qualified: bool,
     pub(crate) over: bool,
+    pub(crate) paused: bool,
     pub(crate) started: bool,
     pub(crate) sound_on: bool,
     rng: u32,
@@ -98,6 +99,7 @@ impl Game {
             lives: 3,
             near_miss_qualified: false,
             over: false,
+            paused: false,
             started: false,
             sound_on: true,
             rng: seed.max(1),
@@ -171,7 +173,7 @@ impl Game {
     }
 
     pub(crate) fn update(&mut self) -> Option<GameEvent> {
-        if !self.started || self.over {
+        if !self.started || self.over || self.paused {
             return None;
         }
 
@@ -467,5 +469,19 @@ mod tests {
         game.countdown_ticks = 31;
         assert!(matches!(game.update(), Some(GameEvent::Go)));
         assert_eq!(game.donkey_y, starting_y);
+    }
+
+    #[test]
+    fn pause_freezes_gameplay_state() {
+        let mut game = Game::new(1);
+        game.start();
+        game.countdown_ticks = 0;
+        game.paused = true;
+        let starting_y = game.donkey_y;
+        let starting_scroll = game.road_scroll;
+
+        assert!(game.update().is_none());
+        assert_eq!(game.donkey_y, starting_y);
+        assert_eq!(game.road_scroll, starting_scroll);
     }
 }

@@ -548,9 +548,9 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
         draw_text(buffer, 84, 96, "A RUST ARCADE REMIX", ROAD_EDGE, 1);
         draw_text(
             buffer,
-            76,
+            60,
             116,
-            "[SPACE] START  [M] SOUND",
+            "[SPACE/A] START  [M] SOUND",
             if (game.city_tick / 30) % 2 == 0 {
                 CYAN
             } else {
@@ -582,7 +582,7 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
                 1,
             );
         }
-        draw_text(buffer, 84, 126, "[R] RETRY   [Q] QUIT", WHITE, 1);
+        draw_text(buffer, 76, 126, "[R/A] RETRY   [Q] QUIT", WHITE, 1);
     } else {
         draw_text(
             buffer,
@@ -625,5 +625,13 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
             fill_rect(buffer, 128, 76, 64, 3, ROAD_EDGE);
             draw_text(buffer, x, 86, label, YELLOW, scale);
         }
+    }
+
+    if game.paused {
+        fill_rect(buffer, 64, 72, 192, 64, SHADOW);
+        fill_rect(buffer, 64, 72, 192, 3, CYAN);
+        fill_rect(buffer, 64, 133, 192, 3, CYAN);
+        draw_text(buffer, 112, 84, "PAUSED", YELLOW, 2);
+        draw_text(buffer, 80, 114, "P / START TO RESUME", WHITE, 1);
     }
 }
