@@ -1,8 +1,8 @@
 use font8x8::{BASIC_FONTS, UnicodeFonts};
 
 use crate::game::{
-    CAR_H, CAR_W, CAR_Y, DONKEY_BASE_H, DONKEY_BASE_W, Game, HEIGHT, ROAD_BOTTOM, ROAD_CENTER_X,
-    ROAD_TOP, SPRITE_SCALE, WIDTH, donkey_scale, lane_x, road_center, road_half_width,
+    CAR_H, CAR_W, CAR_Y, DONKEY_BASE_H, DONKEY_BASE_W, Game, HEIGHT, ObstaclePattern, ROAD_BOTTOM,
+    ROAD_CENTER_X, ROAD_TOP, SPRITE_SCALE, WIDTH, donkey_scale, road_center, road_half_width,
     road_position_x, scaled,
 };
 
@@ -20,6 +20,7 @@ const CYAN: [u8; 3] = [0x25, 0xE6, 0xD2];
 const CYAN_DARK: [u8; 3] = [0x08, 0x61, 0x70];
 const YELLOW: [u8; 3] = [0xFF, 0xD1, 0x66];
 const DONKEY: [u8; 3] = [0xD8, 0x91, 0x56];
+const DONKEY_CROSSING: [u8; 3] = [0xF0, 0x62, 0x7A];
 const SHADOW: [u8; 3] = [0x08, 0x0A, 0x12];
 const BUILDING_BACK: [u8; 3] = [0x12, 0x18, 0x38];
 const BUILDING_MID: [u8; 3] = [0x1A, 0x20, 0x4A];
@@ -467,7 +468,12 @@ fn draw_donkey(buffer: &mut [u8], game: &Game) {
     let scale = donkey_scale(game.donkey_y);
     let width = scaled(DONKEY_BASE_W, scale);
     let height = scaled(DONKEY_BASE_H, scale);
-    let x = lane_x(game.donkey_lane, y, width, game.road_scroll);
+    let x = road_position_x(game.donkey_position, y, width, game.road_scroll);
+    let body_color = if game.obstacle_pattern == ObstaclePattern::Crossing {
+        DONKEY_CROSSING
+    } else {
+        DONKEY
+    };
     fill_rect(
         buffer,
         x + scaled(3, scale),
@@ -476,7 +482,7 @@ fn draw_donkey(buffer: &mut [u8], game: &Game) {
         scaled(2, scale),
         SHADOW,
     );
-    draw_sprite(buffer, &DONKEY_SPRITE, x, y, DONKEY, scale);
+    draw_sprite(buffer, &DONKEY_SPRITE, x, y, body_color, scale);
     fill_rect(
         buffer,
         x + scaled(6, scale),
@@ -526,15 +532,35 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
     );
 
     if !game.started {
-        fill_rect(buffer, 58, 78, 204, 48, SHADOW);
-        fill_rect(buffer, 58, 78, 204, 2, ROAD_EDGE);
-        draw_text(buffer, 88, 88, "DODGE THE DONKEYS", WHITE, 1);
-        draw_text(buffer, 76, 106, "[SPACE] START  [M] SOUND", CYAN, 1);
+        fill_rect(buffer, 58, 70, 204, 66, SHADOW);
+        fill_rect(buffer, 58, 70, 204, 2, ROAD_EDGE);
+        draw_text(buffer, 88, 82, "DODGE THE DONKEYS", WHITE, 1);
+        draw_text(buffer, 76, 100, "[SPACE] START  [M] SOUND", CYAN, 1);
+        draw_text(
+            buffer,
+            120,
+            118,
+            &format!("BEST {:05}", game.best_score),
+            YELLOW,
+            1,
+        );
     } else if game.over {
-        fill_rect(buffer, 68, 76, 184, 56, SHADOW);
-        fill_rect(buffer, 68, 76, 184, 3, ROAD_EDGE);
-        draw_text(buffer, 112, 86, "CRASH!", ROAD_EDGE, 2);
-        draw_text(buffer, 84, 114, "[R] RETRY   [Q] QUIT", WHITE, 1);
+        fill_rect(buffer, 68, 68, 184, 76, SHADOW);
+        fill_rect(buffer, 68, 68, 184, 3, ROAD_EDGE);
+        draw_text(buffer, 112, 78, "CRASH!", ROAD_EDGE, 2);
+        if game.new_high_score {
+            draw_text(buffer, 104, 104, "NEW HIGH SCORE", YELLOW, 1);
+        } else {
+            draw_text(
+                buffer,
+                120,
+                104,
+                &format!("BEST {:05}", game.best_score),
+                YELLOW,
+                1,
+            );
+        }
+        draw_text(buffer, 84, 126, "[R] RETRY   [Q] QUIT", WHITE, 1);
     } else {
         draw_text(
             buffer,
@@ -546,6 +572,14 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
                 "M: SOUND OFF"
             },
             WHITE,
+            1,
+        );
+        draw_text(
+            buffer,
+            240,
+            188,
+            &format!("HI {:05}", game.best_score),
+            YELLOW,
             1,
         );
     }

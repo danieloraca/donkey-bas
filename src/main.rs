@@ -1,6 +1,7 @@
 mod audio;
 mod game;
 mod render;
+mod score;
 
 use std::time::{Duration, Instant};
 
@@ -12,6 +13,7 @@ use sdl2::rect::Rect;
 use audio::{SoundEffect, SoundEngine};
 use game::{FPS, Game, GameEvent, HEIGHT, Lane, WIDTH, seed_now};
 use render::{SCALE, draw};
+use score::ScoreStore;
 
 const FRAME_TIME: Duration = Duration::from_nanos(1_000_000_000 / FPS);
 
@@ -48,7 +50,9 @@ fn main() -> Result<(), String> {
         .map_err(|error| error.to_string())?;
 
     let mut buffer = vec![0_u8; WIDTH * HEIGHT * 3];
+    let score_store = ScoreStore::new();
     let mut game = Game::new(seed_now());
+    game.best_score = score_store.load();
     let mut event_pump = sdl.event_pump()?;
 
     let mut last_frame = Instant::now();
@@ -117,7 +121,14 @@ fn main() -> Result<(), String> {
             game.update_ambient_motion();
             if let Some(event) = game.update() {
                 let effect = match event {
-                    GameEvent::Score => SoundEffect::Score,
+                    GameEvent::Score => {
+                        if game.new_high_score {
+                            if let Err(error) = score_store.save(game.best_score) {
+                                eprintln!("could not save high score: {error}");
+                            }
+                        }
+                        SoundEffect::Score
+                    }
                     GameEvent::Crash => SoundEffect::Crash,
                 };
                 sounds.play(game.sound_on, effect);

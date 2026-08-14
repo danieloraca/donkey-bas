@@ -38,15 +38,25 @@ pub(crate) enum GameEvent {
     Crash,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ObstaclePattern {
+    Straight,
+    Crossing,
+}
+
 pub(crate) struct Game {
     pub(crate) car_lane: Lane,
     pub(crate) car_position: f32,
     pub(crate) donkey_lane: Lane,
+    pub(crate) donkey_position: f32,
+    pub(crate) obstacle_pattern: ObstaclePattern,
     pub(crate) donkey_y: f32,
     pub(crate) road_scroll: f32,
     pub(crate) city_tick: u64,
     pub(crate) crash_started_at: u64,
     pub(crate) score: u32,
+    pub(crate) best_score: u32,
+    pub(crate) new_high_score: bool,
     pub(crate) over: bool,
     pub(crate) started: bool,
     pub(crate) sound_on: bool,
@@ -59,11 +69,15 @@ impl Game {
             car_lane: Lane::Left,
             car_position: -1.0,
             donkey_lane: Lane::Right,
+            donkey_position: 1.0,
+            obstacle_pattern: ObstaclePattern::Straight,
             donkey_y: ROAD_TOP as f32,
             road_scroll: 0.0,
             city_tick: 0,
             crash_started_at: 0,
             score: 0,
+            best_score: 0,
+            new_high_score: false,
             over: false,
             started: false,
             sound_on: true,
@@ -74,9 +88,11 @@ impl Game {
     pub(crate) fn reset(&mut self, seed: u32) {
         let sound_on = self.sound_on;
         let city_tick = self.city_tick;
+        let best_score = self.best_score;
         *self = Self::new(seed);
         self.sound_on = sound_on;
         self.city_tick = city_tick;
+        self.best_score = best_score;
         self.started = true;
         self.spawn_donkey();
     }
@@ -89,10 +105,22 @@ impl Game {
     }
 
     pub(crate) fn spawn_donkey(&mut self) {
-        self.donkey_lane = if self.next_u32() >> 31 == 0 {
+        let random = self.next_u32();
+        self.donkey_lane = if random >> 31 == 0 {
             Lane::Left
         } else {
             Lane::Right
+        };
+        self.donkey_position = self.donkey_lane.direction() as f32;
+        let crossing_chance = if self.score < 4 {
+            0
+        } else {
+            (1 + self.score / 20).min(3)
+        };
+        self.obstacle_pattern = if (random >> 8) % 8 < crossing_chance {
+            ObstaclePattern::Crossing
+        } else {
+            ObstaclePattern::Straight
         };
         self.donkey_y = ROAD_TOP as f32;
     }
@@ -121,6 +149,7 @@ impl Game {
 
         let step = self.donkey_speed() / FPS as f32;
         self.donkey_y += step;
+        self.update_obstacle_motion();
         self.road_scroll = (self.road_scroll + step) % 364.0;
 
         if self.collides() {
@@ -131,11 +160,26 @@ impl Game {
 
         if self.donkey_y > ROAD_BOTTOM as f32 {
             self.score += 1;
+            if self.score > self.best_score {
+                self.best_score = self.score;
+                self.new_high_score = true;
+            }
             self.spawn_donkey();
             return Some(GameEvent::Score);
         }
 
         None
+    }
+
+    fn update_obstacle_motion(&mut self) {
+        if self.obstacle_pattern == ObstaclePattern::Straight {
+            return;
+        }
+        let progress =
+            ((self.donkey_y - ROAD_TOP as f32) / (ROAD_BOTTOM - ROAD_TOP) as f32).clamp(0.0, 1.0);
+        let transition = ((progress - 0.18) / 0.64).clamp(0.0, 1.0);
+        let smooth = transition * transition * (3.0 - 2.0 * transition);
+        self.donkey_position = self.donkey_lane.direction() as f32 * (1.0 - 2.0 * smooth);
     }
 
     fn collides(&self) -> bool {
@@ -149,8 +193,8 @@ impl Game {
         }
 
         let donkey_width = scaled(DONKEY_BASE_W, scale);
-        let donkey_x = lane_x(
-            self.donkey_lane,
+        let donkey_x = road_position_x(
+            self.donkey_position,
             self.donkey_y.round() as i32,
             donkey_width,
             self.road_scroll,
@@ -181,10 +225,6 @@ pub(crate) fn road_center(_y: i32, _scroll: f32) -> i32 {
 pub(crate) fn road_position_x(position: f32, y: i32, width: i32, scroll: f32) -> i32 {
     let half = road_half_width(y);
     road_center(y, scroll) + (position * half as f32 * 0.5) as i32 - width / 2
-}
-
-pub(crate) fn lane_x(lane: Lane, y: i32, width: i32, scroll: f32) -> i32 {
-    road_position_x(lane.direction() as f32, y, width, scroll)
 }
 
 pub(crate) fn donkey_scale(y: f32) -> f32 {
@@ -256,5 +296,37 @@ mod tests {
             game.update_ambient_motion();
         }
         assert_eq!(game.car_position, 1.0);
+    }
+
+    #[test]
+    fn crossing_pattern_moves_smoothly_between_lanes() {
+        let mut game = Game::new(1);
+        game.donkey_lane = Lane::Left;
+        game.donkey_position = -1.0;
+        game.obstacle_pattern = ObstaclePattern::Crossing;
+
+        game.donkey_y = (ROAD_TOP + ROAD_BOTTOM) as f32 / 2.0;
+        game.update_obstacle_motion();
+        assert!(game.donkey_position.abs() < 0.01);
+
+        game.donkey_y = ROAD_BOTTOM as f32;
+        game.update_obstacle_motion();
+        assert_eq!(game.donkey_position, 1.0);
+    }
+
+    #[test]
+    fn passing_an_obstacle_updates_the_high_score() {
+        let mut game = Game::new(1);
+        game.started = true;
+        game.score = 7;
+        game.best_score = 7;
+        game.car_position = -1.0;
+        game.donkey_position = 1.0;
+        game.obstacle_pattern = ObstaclePattern::Straight;
+        game.donkey_y = ROAD_BOTTOM as f32 + 1.0;
+
+        assert!(matches!(game.update(), Some(GameEvent::Score)));
+        assert_eq!(game.best_score, 8);
+        assert!(game.new_high_score);
     }
 }
