@@ -132,12 +132,7 @@ impl Game {
             Lane::Right
         };
         self.donkey_position = self.donkey_lane.direction() as f32;
-        let crossing_chance = if self.dodges < 4 {
-            0
-        } else {
-            (1 + self.dodges / 20).min(3)
-        };
-        self.obstacle_pattern = if (random >> 8) % 8 < crossing_chance {
+        self.obstacle_pattern = if (random >> 8) % 12 < crossing_slots(self.dodges) {
             ObstaclePattern::Crossing
         } else {
             ObstaclePattern::Straight
@@ -321,6 +316,14 @@ pub(crate) fn scaled(value: i32, scale: f32) -> i32 {
     (value as f32 * scale).round() as i32
 }
 
+fn crossing_slots(dodges: u32) -> u32 {
+    if dodges < 8 {
+        0
+    } else {
+        (1 + dodges / 40).min(2)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -397,6 +400,14 @@ mod tests {
         game.donkey_y = ROAD_BOTTOM as f32;
         game.update_obstacle_motion();
         assert_eq!(game.donkey_position, 1.0);
+    }
+
+    #[test]
+    fn crossing_obstacles_remain_uncommon() {
+        assert_eq!(crossing_slots(7), 0);
+        assert_eq!(crossing_slots(8), 1);
+        assert_eq!(crossing_slots(40), 2);
+        assert_eq!(crossing_slots(1_000), 2);
     }
 
     #[test]
