@@ -244,6 +244,12 @@ fn main() -> Result<(), String> {
             accumulator -= FRAME_TIME;
         }
 
+        sounds.update_music(
+            game.sound_on,
+            game.started && !game.over && !game.paused,
+            game.level(),
+        );
+
         draw(&mut buffer, &game);
         texture
             .update(
