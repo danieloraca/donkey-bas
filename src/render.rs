@@ -28,6 +28,7 @@ const BUILDING_FRONT: [u8; 3] = [0x13, 0x19, 0x31];
 const TREE_DARK: [u8; 3] = [0x08, 0x45, 0x3C];
 const TREE_LIGHT: [u8; 3] = [0x10, 0x78, 0x58];
 const TREE_TRUNK: [u8; 3] = [0x73, 0x43, 0x35];
+const EXHAUST: [u8; 3] = [0x55, 0x5B, 0x70];
 const WHITE: [u8; 3] = [0xF4, 0xF7, 0xFF];
 const CAR_SPRITE: [&str; 12] = [
     "0000001111000000",
@@ -412,6 +413,67 @@ fn draw_sprite(buffer: &mut [u8], sprite: &[&str], x: i32, y: i32, color: [u8; 3
     }
 }
 
+fn car_bounce(game: &Game) -> i32 {
+    if !game.started || game.over || game.paused || game.countdown_ticks > 0 {
+        return 0;
+    }
+    let period = 6_u64.saturating_sub((game.level() / 3).min(3) as u64);
+    ((game.city_tick / period) % 2) as i32
+}
+
+fn draw_exhaust(buffer: &mut [u8], game: &Game) {
+    if !game.started || game.over || game.paused || game.countdown_ticks > 0 {
+        return;
+    }
+    let car_x = road_position_x(game.car_position, CAR_Y, CAR_W, game.road_scroll);
+    for plume in 0..3_u64 {
+        let age = (game.city_tick + plume * 9) % 27;
+        let size = 1 + age as i32 / 9;
+        let sway = (city_hash((game.city_tick / 3 + plume) as u32) % 5) as i32 - 2;
+        let x = car_x + CAR_W / 2 + sway - size / 2;
+        let y = CAR_Y + CAR_H - 2 + age as i32 / 2;
+        fill_rect(
+            buffer,
+            x,
+            y,
+            size,
+            size,
+            if age < 9 { WHITE } else { EXHAUST },
+        );
+    }
+}
+
+fn speed_particle_count(level: u32) -> usize {
+    4 + level.min(12) as usize
+}
+
+fn draw_speed_particles(buffer: &mut [u8], game: &Game) {
+    if !game.started || game.over || game.paused || game.countdown_ticks > 0 {
+        return;
+    }
+    let travel = (ROAD_BOTTOM - ROAD_TOP) as f32;
+    let velocity = 1.2 + game.level().min(20) as f32 * 0.12;
+    for index in 0..speed_particle_count(game.level()) {
+        let seed = city_hash(index as u32 * 1_009 + 71);
+        let phase = (game.city_tick as f32 * velocity + (seed % 997) as f32) % travel;
+        let y = ROAD_TOP + phase as i32;
+        let depth = phase / travel;
+        let half = road_half_width(y);
+        let side = if seed & 1 == 0 { -1 } else { 1 };
+        let shoulder_offset = 5 + ((seed >> 8) % 18) as i32;
+        let x = road_center(y, game.road_scroll) + side * (half + shoulder_offset);
+        let length = 1 + (depth * (4.0 + game.level().min(8) as f32 * 0.35)) as i32;
+        fill_rect(
+            buffer,
+            x,
+            y - length,
+            if depth > 0.7 { 2 } else { 1 },
+            length,
+            if index % 3 == 0 { WHITE } else { CYAN },
+        );
+    }
+}
+
 fn draw_car(buffer: &mut [u8], game: &Game) {
     if !game.over && game.city_tick < game.invulnerable_until && (game.city_tick / 4) % 2 == 0 {
         return;
@@ -421,13 +483,22 @@ fn draw_car(buffer: &mut [u8], game: &Game) {
     if game.over && crash_age < 18 {
         x += (city_hash(game.city_tick as u32) % 5) as i32 - 2;
     }
+    let y = CAR_Y - car_bounce(game);
     fill_rect(buffer, x + 4, CAR_Y + CAR_H - 2, CAR_W - 8, 5, SHADOW);
-    draw_sprite(buffer, &CAR_SPRITE, x, CAR_Y, CYAN, SPRITE_SCALE as f32);
-    fill_rect(buffer, x + 12, CAR_Y + 4, 8, 6, CYAN_DARK);
-    fill_rect(buffer, x + 6, CAR_Y + 14, 6, 2, YELLOW);
-    fill_rect(buffer, x + 20, CAR_Y + 14, 6, 2, YELLOW);
-    fill_rect(buffer, x + 2, CAR_Y + 18, 6, 4, SHADOW);
-    fill_rect(buffer, x + 24, CAR_Y + 18, 6, 4, SHADOW);
+    draw_sprite(buffer, &CAR_SPRITE, x, y, CYAN, SPRITE_SCALE as f32);
+    fill_rect(buffer, x + 12, y + 4, 8, 6, CYAN_DARK);
+    fill_rect(buffer, x + 6, y + 14, 6, 2, YELLOW);
+    fill_rect(buffer, x + 20, y + 14, 6, 2, YELLOW);
+    fill_rect(buffer, x + 2, y + 18, 6, 4, SHADOW);
+    fill_rect(buffer, x + 24, y + 18, 6, 4, SHADOW);
+
+    let tire_phase = if game.started && !game.over && !game.paused && game.countdown_ticks == 0 {
+        ((game.city_tick / 3) % 2) as i32
+    } else {
+        0
+    };
+    fill_rect(buffer, x + 2 + tire_phase * 3, y + 20, 3, 1, EXHAUST);
+    fill_rect(buffer, x + 24 + tire_phase * 3, y + 20, 3, 1, EXHAUST);
 }
 
 fn draw_crash_effect(buffer: &mut [u8], game: &Game) {
@@ -513,6 +584,8 @@ fn draw_donkey(buffer: &mut [u8], game: &Game) {
 pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
     draw_background(buffer, game.city_tick);
     draw_road(buffer, game.road_scroll);
+    draw_speed_particles(buffer, game);
+    draw_exhaust(buffer, game);
     if game.started {
         draw_donkey(buffer, game);
     }
@@ -633,5 +706,17 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
         fill_rect(buffer, 64, 133, 192, 3, CYAN);
         draw_text(buffer, 112, 84, "PAUSED", YELLOW, 2);
         draw_text(buffer, 80, 114, "P / START TO RESUME", WHITE, 1);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn speed_particles_scale_with_level_and_are_bounded() {
+        assert_eq!(speed_particle_count(1), 5);
+        assert!(speed_particle_count(8) > speed_particle_count(1));
+        assert_eq!(speed_particle_count(100), 16);
     }
 }
