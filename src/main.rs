@@ -234,6 +234,7 @@ fn main() -> Result<(), String> {
                 let effect = match event {
                     GameEvent::Countdown => SoundEffect::Countdown,
                     GameEvent::Go => SoundEffect::Go,
+                    GameEvent::CrossingWarning => SoundEffect::CrossingWarning,
                     GameEvent::Score => SoundEffect::Score,
                     GameEvent::NearMiss => SoundEffect::NearMiss,
                     GameEvent::Hit => SoundEffect::Hit,

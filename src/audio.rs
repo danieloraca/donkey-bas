@@ -13,6 +13,7 @@ pub(crate) enum SoundEffect {
     Pause,
     Resume,
     Move(Lane),
+    CrossingWarning,
     Score,
     NearMiss,
     Hit,
@@ -104,6 +105,11 @@ impl SoundEngine {
             SoundEffect::Move(lane) => {
                 let frequency = if lane == Lane::Left { 330.0 } else { 440.0 };
                 self.tone(&mut samples, frequency, 32, 0.09);
+            }
+            SoundEffect::CrossingWarning => {
+                self.tone(&mut samples, 740.0, 45, 0.14);
+                self.rest(&mut samples, 22);
+                self.tone(&mut samples, 520.0, 72, 0.16);
             }
             SoundEffect::Score => {
                 self.tone(&mut samples, 660.0, 55, 0.14);

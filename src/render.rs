@@ -555,6 +555,32 @@ fn draw_donkey(buffer: &mut [u8], game: &Game) {
         SHADOW,
     );
     draw_sprite(buffer, &DONKEY_SPRITE, x, y, body_color, scale);
+    if game.obstacle_pattern == ObstaclePattern::Crossing {
+        let badge_size = scaled(2, scale).max(2);
+        fill_rect(
+            buffer,
+            x + scaled(2, scale),
+            y + scaled(6, scale),
+            badge_size,
+            badge_size,
+            WHITE,
+        );
+        fill_rect(
+            buffer,
+            x + width - scaled(4, scale),
+            y + scaled(6, scale),
+            badge_size,
+            badge_size,
+            WHITE,
+        );
+        draw_crossing_arrow(
+            buffer,
+            x + width / 2,
+            (y - scaled(5, scale)).max(22),
+            -game.donkey_lane.direction(),
+            scale,
+        );
+    }
     fill_rect(
         buffer,
         x + scaled(6, scale),
@@ -581,9 +607,77 @@ fn draw_donkey(buffer: &mut [u8], game: &Game) {
     );
 }
 
+fn draw_crossing_arrow(buffer: &mut [u8], center_x: i32, y: i32, direction: i32, scale: f32) {
+    let length = scaled(5, scale).max(5);
+    let thickness = scaled(1, scale).max(1);
+    let left = center_x - length;
+    fill_rect(buffer, left, y, length * 2, thickness, YELLOW);
+
+    let tip = center_x + direction * length;
+    for offset in 0..=3 {
+        let offset = scaled(offset, scale).max(offset);
+        fill_rect(
+            buffer,
+            tip - direction * offset,
+            y - offset,
+            thickness,
+            thickness,
+            YELLOW,
+        );
+        fill_rect(
+            buffer,
+            tip - direction * offset,
+            y + offset,
+            thickness,
+            thickness,
+            YELLOW,
+        );
+    }
+}
+
+fn draw_crossing_telegraph(buffer: &mut [u8], game: &Game) {
+    if !game.started
+        || game.over
+        || game.countdown_ticks > 0
+        || game.obstacle_pattern != ObstaclePattern::Crossing
+    {
+        return;
+    }
+
+    let progress =
+        ((game.donkey_y - ROAD_TOP as f32) / (ROAD_BOTTOM - ROAD_TOP) as f32).clamp(0.0, 1.0);
+    if progress > 0.82 || (game.city_tick / 7) % 2 != 0 {
+        return;
+    }
+
+    let marker_y = (game.donkey_y as i32 + 26).clamp(ROAD_TOP + 18, CAR_Y - 10);
+    let destination = -game.donkey_lane.direction() as f32;
+    let center_x = road_position_x(destination, marker_y, 0, game.road_scroll);
+    let size = 3 + (marker_y - ROAD_TOP) * 4 / (ROAD_BOTTOM - ROAD_TOP);
+    for offset in -size..=size {
+        fill_rect(
+            buffer,
+            center_x + offset,
+            marker_y + offset,
+            2,
+            2,
+            ROAD_EDGE,
+        );
+        fill_rect(
+            buffer,
+            center_x + offset,
+            marker_y - offset,
+            2,
+            2,
+            ROAD_EDGE,
+        );
+    }
+}
+
 pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
     draw_background(buffer, game.city_tick);
     draw_road(buffer, game.road_scroll);
+    draw_crossing_telegraph(buffer, game);
     draw_speed_particles(buffer, game);
     draw_exhaust(buffer, game);
     if game.started {
@@ -679,6 +773,11 @@ pub(crate) fn draw(buffer: &mut [u8], game: &Game) {
         );
         if game.combo > 0 {
             draw_text(buffer, 120, 188, &format!("COMBO X{}", game.combo), CYAN, 1);
+        }
+        if game.countdown_ticks == 0 && game.crossing_tutorial_until > game.city_tick {
+            fill_rect(buffer, 64, 36, 192, 20, SHADOW);
+            fill_rect(buffer, 64, 36, 192, 2, ROAD_EDGE);
+            draw_text(buffer, 72, 43, "RED: TAKE ITS OLD LANE", YELLOW, 1);
         }
         let near_miss_age = game.city_tick.saturating_sub(game.near_miss_started_at);
         if game.near_miss_started_at > 0 && near_miss_age < FPS {

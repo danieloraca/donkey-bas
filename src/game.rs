@@ -37,6 +37,7 @@ impl Lane {
 pub(crate) enum GameEvent {
     Countdown,
     Go,
+    CrossingWarning,
     Score,
     NearMiss,
     Hit,
@@ -62,6 +63,7 @@ pub(crate) struct Game {
     pub(crate) countdown_ticks: u16,
     pub(crate) invulnerable_until: u64,
     pub(crate) near_miss_started_at: u64,
+    pub(crate) crossing_tutorial_until: u64,
     pub(crate) score: u32,
     pub(crate) dodges: u32,
     pub(crate) best_score: u32,
@@ -69,6 +71,8 @@ pub(crate) struct Game {
     pub(crate) combo: u32,
     pub(crate) lives: u8,
     near_miss_qualified: bool,
+    crossing_warning_played: bool,
+    crossing_tutorial_seen: bool,
     pub(crate) over: bool,
     pub(crate) paused: bool,
     pub(crate) started: bool,
@@ -91,6 +95,7 @@ impl Game {
             countdown_ticks: 0,
             invulnerable_until: 0,
             near_miss_started_at: 0,
+            crossing_tutorial_until: 0,
             score: 0,
             dodges: 0,
             best_score: 0,
@@ -98,6 +103,8 @@ impl Game {
             combo: 0,
             lives: 3,
             near_miss_qualified: false,
+            crossing_warning_played: false,
+            crossing_tutorial_seen: false,
             over: false,
             paused: false,
             started: false,
@@ -110,10 +117,12 @@ impl Game {
         let sound_on = self.sound_on;
         let city_tick = self.city_tick;
         let best_score = self.best_score;
+        let crossing_tutorial_seen = self.crossing_tutorial_seen;
         *self = Self::new(seed);
         self.sound_on = sound_on;
         self.city_tick = city_tick;
         self.best_score = best_score;
+        self.crossing_tutorial_seen = crossing_tutorial_seen;
         self.start();
     }
 
@@ -139,6 +148,11 @@ impl Game {
         };
         self.donkey_y = ROAD_TOP as f32;
         self.near_miss_qualified = false;
+        self.crossing_warning_played = false;
+        if self.obstacle_pattern == ObstaclePattern::Crossing && !self.crossing_tutorial_seen {
+            self.crossing_tutorial_seen = true;
+            self.crossing_tutorial_until = self.city_tick + self.countdown_ticks as u64 + FPS * 3;
+        }
     }
 
     fn donkey_speed(&self) -> f32 {
@@ -184,7 +198,7 @@ impl Game {
 
         let step = self.donkey_speed() / FPS as f32;
         self.donkey_y += step;
-        self.update_obstacle_motion();
+        let crossing_started = self.update_obstacle_motion();
         self.road_scroll = (self.road_scroll + step) % 364.0;
 
         if self.city_tick >= self.invulnerable_until && self.collides() {
@@ -224,18 +238,28 @@ impl Game {
             return Some(event);
         }
 
+        if crossing_started {
+            return Some(GameEvent::CrossingWarning);
+        }
+
         None
     }
 
-    fn update_obstacle_motion(&mut self) {
+    fn update_obstacle_motion(&mut self) -> bool {
         if self.obstacle_pattern == ObstaclePattern::Straight {
-            return;
+            return false;
         }
         let progress =
             ((self.donkey_y - ROAD_TOP as f32) / (ROAD_BOTTOM - ROAD_TOP) as f32).clamp(0.0, 1.0);
         let transition = ((progress - 0.18) / 0.64).clamp(0.0, 1.0);
         let smooth = transition * transition * (3.0 - 2.0 * transition);
         self.donkey_position = self.donkey_lane.direction() as f32 * (1.0 - 2.0 * smooth);
+        if transition > 0.0 && !self.crossing_warning_played {
+            self.crossing_warning_played = true;
+            true
+        } else {
+            false
+        }
     }
 
     fn collides(&self) -> bool {
@@ -394,11 +418,11 @@ mod tests {
         game.obstacle_pattern = ObstaclePattern::Crossing;
 
         game.donkey_y = (ROAD_TOP + ROAD_BOTTOM) as f32 / 2.0;
-        game.update_obstacle_motion();
+        assert!(game.update_obstacle_motion());
         assert!(game.donkey_position.abs() < 0.01);
 
         game.donkey_y = ROAD_BOTTOM as f32;
-        game.update_obstacle_motion();
+        assert!(!game.update_obstacle_motion());
         assert_eq!(game.donkey_position, 1.0);
     }
 
@@ -408,6 +432,24 @@ mod tests {
         assert_eq!(crossing_slots(8), 1);
         assert_eq!(crossing_slots(40), 2);
         assert_eq!(crossing_slots(1_000), 2);
+    }
+
+    #[test]
+    fn crossing_tutorial_is_only_armed_once_per_session() {
+        let mut game = Game::new(0x1234_5678);
+        game.dodges = 40;
+        for _ in 0..100 {
+            game.spawn_donkey();
+            if game.obstacle_pattern == ObstaclePattern::Crossing {
+                break;
+            }
+        }
+
+        assert!(game.crossing_tutorial_seen);
+        assert!(game.crossing_tutorial_until > game.city_tick);
+        game.reset(1);
+        assert!(game.crossing_tutorial_seen);
+        assert_eq!(game.crossing_tutorial_until, 0);
     }
 
     #[test]
