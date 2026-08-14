@@ -13,15 +13,22 @@ const SCALE: u32 = 3;
 const FPS: u64 = 60;
 const FRAME_TIME: Duration = Duration::from_nanos(1_000_000_000 / FPS);
 
-const BLACK: [u8; 3] = [0x00, 0x00, 0x00];
-const CYAN: [u8; 3] = [0x00, 0xAA, 0xAA];
-const MAGENTA: [u8; 3] = [0xAA, 0x00, 0xAA];
-const WHITE: [u8; 3] = [0xFF, 0xFF, 0xFF];
+const SKY: [u8; 3] = [0x08, 0x0D, 0x22];
+const SKY_GLOW: [u8; 3] = [0x2C, 0x1E, 0x4E];
+const GROUND: [u8; 3] = [0x0B, 0x34, 0x2D];
+const ROAD: [u8; 3] = [0x20, 0x24, 0x32];
+const ROAD_EDGE: [u8; 3] = [0xFF, 0x4F, 0x81];
+const CYAN: [u8; 3] = [0x25, 0xE6, 0xD2];
+const CYAN_DARK: [u8; 3] = [0x08, 0x61, 0x70];
+const YELLOW: [u8; 3] = [0xFF, 0xD1, 0x66];
+const DONKEY: [u8; 3] = [0xD8, 0x91, 0x56];
+const SHADOW: [u8; 3] = [0x08, 0x0A, 0x12];
+const WHITE: [u8; 3] = [0xF4, 0xF7, 0xFF];
 
-const ROAD_TOP: i32 = 20;
-const ROAD_BOTTOM: i32 = 190;
-const ROAD_TOP_W: i32 = 120;
-const ROAD_BOTTOM_W: i32 = 260;
+const ROAD_TOP: i32 = 40;
+const ROAD_BOTTOM: i32 = 199;
+const ROAD_TOP_W: i32 = 72;
+const ROAD_BOTTOM_W: i32 = 278;
 const ROAD_CENTER_X: i32 = (WIDTH as i32) / 2;
 
 const CAR_W: i32 = 16;
@@ -66,10 +73,10 @@ enum Lane {
 }
 
 impl Lane {
-    fn x(self) -> i32 {
+    fn direction(self) -> i32 {
         match self {
-            Self::Left => ROAD_CENTER_X - 48 - CAR_W / 2,
-            Self::Right => ROAD_CENTER_X + 48 - CAR_W / 2,
+            Self::Left => -1,
+            Self::Right => 1,
         }
     }
 }
@@ -77,13 +84,13 @@ impl Lane {
 struct Game {
     car_lane: Lane,
     donkey_lane: Lane,
-    donkey_y: i32,
+    donkey_y: f32,
+    road_scroll: f32,
     score: u32,
     over: bool,
     started: bool,
     sound_on: bool,
     rng: u32,
-    move_frame_counter: u32,
 }
 
 impl Game {
@@ -91,13 +98,13 @@ impl Game {
         Self {
             car_lane: Lane::Left,
             donkey_lane: Lane::Right,
-            donkey_y: -DONKEY_H,
+            donkey_y: ROAD_TOP as f32,
+            road_scroll: 0.0,
             score: 0,
             over: false,
             started: false,
             sound_on: true,
             rng: seed.max(1),
-            move_frame_counter: 0,
         }
     }
 
@@ -108,23 +115,29 @@ impl Game {
     }
 
     fn next_u32(&mut self) -> u32 {
-        self.rng = self.rng.wrapping_mul(1664525).wrapping_add(1013904223);
+        // Xorshift32 has usable bits throughout its output. The previous LCG's
+        // lowest bit flipped on every call, forcing a left/right pattern.
+        self.rng ^= self.rng << 13;
+        self.rng ^= self.rng >> 17;
+        self.rng ^= self.rng << 5;
         self.rng
     }
 
     fn spawn_donkey(&mut self) {
-        self.donkey_lane = if self.next_u32() & 1 == 0 {
+        self.donkey_lane = if self.next_u32() >> 31 == 0 {
             Lane::Left
         } else {
             Lane::Right
         };
-        self.donkey_y = -DONKEY_H;
-        self.move_frame_counter = 0;
+        self.donkey_y = ROAD_TOP as f32;
     }
 
-    fn donkey_step_frames(&self) -> u32 {
-        let speedup = self.score / 5;
-        6_u32.saturating_sub(speedup).max(2)
+    fn donkey_speed(&self) -> f32 {
+        (55.0 + self.score as f32 * 4.0).min(135.0)
+    }
+
+    fn level(&self) -> u32 {
+        1 + self.score / 5
     }
 }
 
@@ -161,9 +174,16 @@ fn put_pixel(buffer: &mut [u8], x: i32, y: i32, color: [u8; 3]) {
 }
 
 fn fill_rect(buffer: &mut [u8], x: i32, y: i32, w: i32, h: i32, color: [u8; 3]) {
+    let left = x.max(0) as usize;
+    let right = (x + w).min(WIDTH as i32).max(0) as usize;
+    if left >= right {
+        return;
+    }
     for py in y.max(0)..(y + h).min(HEIGHT as i32) {
-        for px in x.max(0)..(x + w).min(WIDTH as i32) {
-            put_pixel(buffer, px, py, color);
+        let start = (py as usize * WIDTH + left) * 3;
+        let end = (py as usize * WIDTH + right) * 3;
+        for pixel in buffer[start..end].chunks_exact_mut(3) {
+            pixel.copy_from_slice(&color);
         }
     }
 }
@@ -196,29 +216,81 @@ fn draw_text(buffer: &mut [u8], x: i32, y: i32, text: &str, color: [u8; 3], scal
 }
 
 fn road_half_width(y: i32) -> i32 {
-    let t = (y - ROAD_TOP) as f32 / (ROAD_BOTTOM - ROAD_TOP) as f32;
+    let t = ((y - ROAD_TOP) as f32 / (ROAD_BOTTOM - ROAD_TOP) as f32).clamp(0.0, 1.0);
     let top_half = ROAD_TOP_W as f32 / 2.0;
     let bottom_half = ROAD_BOTTOM_W as f32 / 2.0;
     (top_half + (bottom_half - top_half) * t) as i32
 }
 
-fn draw_road(buffer: &mut [u8]) {
+fn lane_x(lane: Lane, y: i32, width: i32) -> i32 {
+    let half = road_half_width(y);
+    ROAD_CENTER_X + lane.direction() * (half / 2) - width / 2
+}
+
+fn draw_background(buffer: &mut [u8]) {
+    clear(buffer, SKY);
+    fill_rect(buffer, 0, 26, WIDTH as i32, 14, SKY_GLOW);
+
+    // A tiny neon skyline makes the horizon feel less empty.
+    for &(x, w, h) in &[
+        (0, 24, 13),
+        (28, 18, 8),
+        (50, 30, 16),
+        (84, 15, 10),
+        (224, 18, 9),
+        (247, 27, 15),
+        (279, 18, 11),
+        (301, 19, 17),
+    ] {
+        fill_rect(buffer, x, ROAD_TOP - h, w, h, SHADOW);
+        if w > 20 {
+            fill_rect(buffer, x + 5, ROAD_TOP - h + 4, 2, 2, YELLOW);
+            fill_rect(buffer, x + 13, ROAD_TOP - h + 4, 2, 2, CYAN);
+        }
+    }
+    fill_rect(
+        buffer,
+        0,
+        ROAD_TOP,
+        WIDTH as i32,
+        HEIGHT as i32 - ROAD_TOP,
+        GROUND,
+    );
+}
+
+fn draw_road(buffer: &mut [u8], scroll: f32) {
     for y in ROAD_TOP..=ROAD_BOTTOM {
         let half = road_half_width(y);
         let left = ROAD_CENTER_X - half;
         let right = ROAD_CENTER_X + half;
-        fill_rect(buffer, left, y, right - left, 1, BLACK);
-        fill_rect(buffer, left - 2, y, 2, 1, CYAN);
-        fill_rect(buffer, right, y, 2, 1, CYAN);
+        fill_rect(buffer, left, y, right - left, 1, ROAD);
+        let edge_width = 1 + ((y - ROAD_TOP) * 2 / (ROAD_BOTTOM - ROAD_TOP));
+        fill_rect(buffer, left - edge_width, y, edge_width, 1, ROAD_EDGE);
+        fill_rect(buffer, right, y, edge_width, 1, ROAD_EDGE);
 
-        let dash_period = 14;
-        if ((y + 4) / dash_period) % 2 == 0 {
-            let lane_sep = (half * 48) / (ROAD_BOTTOM_W / 2);
-            let cx_l = ROAD_CENTER_X - lane_sep / 2;
-            let cx_r = ROAD_CENTER_X + lane_sep / 2;
-            fill_rect(buffer, cx_l - 1, y, 2, 1, MAGENTA);
-            fill_rect(buffer, cx_r - 1, y, 2, 1, MAGENTA);
+        // Dashes accelerate toward the player, reinforcing forward motion.
+        let perspective_scroll = scroll * (0.25 + (y - ROAD_TOP) as f32 / 160.0);
+        if ((y as f32 + perspective_scroll) / 13.0) as i32 % 2 == 0 {
+            let dash_width = 1 + (y - ROAD_TOP) / 70;
+            fill_rect(
+                buffer,
+                ROAD_CENTER_X - dash_width / 2,
+                y,
+                dash_width,
+                1,
+                YELLOW,
+            );
         }
+    }
+
+    // Scrolling roadside reflectors.
+    let offset = scroll as i32 % 28;
+    for base_y in (ROAD_TOP..ROAD_BOTTOM).step_by(28) {
+        let y = ROAD_TOP + (base_y - ROAD_TOP + offset) % (ROAD_BOTTOM - ROAD_TOP);
+        let half = road_half_width(y);
+        let size = 1 + (y - ROAD_TOP) / 55;
+        fill_rect(buffer, ROAD_CENTER_X - half - 7, y, size, size + 1, CYAN);
+        fill_rect(buffer, ROAD_CENTER_X + half + 5, y, size, size + 1, CYAN);
     }
 }
 
@@ -232,14 +304,35 @@ fn draw_sprite(buffer: &mut [u8], sprite: &[&str], x: i32, y: i32, color: [u8; 3
     }
 }
 
+fn draw_car(buffer: &mut [u8], lane: Lane) {
+    let x = lane_x(lane, CAR_Y, CAR_W);
+    fill_rect(buffer, x + 2, CAR_Y + CAR_H - 1, CAR_W - 4, 3, SHADOW);
+    draw_sprite(buffer, &CAR_SPRITE, x, CAR_Y, CYAN);
+    fill_rect(buffer, x + 6, CAR_Y + 2, 4, 3, CYAN_DARK);
+    fill_rect(buffer, x + 3, CAR_Y + 7, 3, 1, YELLOW);
+    fill_rect(buffer, x + 10, CAR_Y + 7, 3, 1, YELLOW);
+    fill_rect(buffer, x + 1, CAR_Y + 9, 3, 2, SHADOW);
+    fill_rect(buffer, x + 12, CAR_Y + 9, 3, 2, SHADOW);
+}
+
+fn draw_donkey(buffer: &mut [u8], game: &Game) {
+    let y = game.donkey_y.round() as i32;
+    let x = lane_x(game.donkey_lane, y, CAR_W);
+    fill_rect(buffer, x + 3, y + DONKEY_H - 1, CAR_W - 6, 2, SHADOW);
+    draw_sprite(buffer, &DONKEY_SPRITE, x, y, DONKEY);
+    put_pixel(buffer, x + 6, y + 3, SHADOW);
+    put_pixel(buffer, x + 10, y + 3, SHADOW);
+    fill_rect(buffer, x + 7, y + 6, 3, 1, WHITE);
+}
+
 fn collides(game: &Game) -> bool {
     if game.car_lane != game.donkey_lane {
         return false;
     }
     let donkey_top = game.donkey_y;
-    let donkey_bottom = game.donkey_y + DONKEY_H - 1;
-    let car_top = CAR_Y;
-    let car_bottom = CAR_Y + CAR_H - 1;
+    let donkey_bottom = game.donkey_y + DONKEY_H as f32 - 1.0;
+    let car_top = CAR_Y as f32;
+    let car_bottom = (CAR_Y + CAR_H - 1) as f32;
     donkey_top <= car_bottom && donkey_bottom >= car_top
 }
 
@@ -248,12 +341,9 @@ fn update_logic(game: &mut Game) {
         return;
     }
 
-    game.move_frame_counter += 1;
-    if game.move_frame_counter < game.donkey_step_frames() {
-        return;
-    }
-    game.move_frame_counter = 0;
-    game.donkey_y += 2;
+    let step = game.donkey_speed() / FPS as f32;
+    game.donkey_y += step;
+    game.road_scroll = (game.road_scroll + step) % 364.0;
 
     if collides(game) {
         game.over = true;
@@ -261,7 +351,7 @@ fn update_logic(game: &mut Game) {
         return;
     }
 
-    if game.donkey_y > ROAD_BOTTOM {
+    if game.donkey_y > ROAD_BOTTOM as f32 {
         game.score += 1;
         beep(game.sound_on, 1);
         game.spawn_donkey();
@@ -269,38 +359,49 @@ fn update_logic(game: &mut Game) {
 }
 
 fn draw(buffer: &mut [u8], game: &Game) {
-    clear(buffer, MAGENTA);
-    draw_road(buffer);
+    draw_background(buffer);
+    draw_road(buffer, game.road_scroll);
+    draw_donkey(buffer, game);
+    draw_car(buffer, game.car_lane);
 
-    let donkey_x = game.donkey_lane.x();
-    draw_sprite(buffer, &DONKEY_SPRITE, donkey_x, game.donkey_y, WHITE);
-
-    let car_x = game.car_lane.x();
-    draw_sprite(buffer, &CAR_SPRITE, car_x, CAR_Y, CYAN);
-
-    draw_text(buffer, 8, 4, "DONKEY.BAS", WHITE, 1);
+    fill_rect(buffer, 0, 0, WIDTH as i32, 20, SHADOW);
+    fill_rect(buffer, 0, 19, WIDTH as i32, 1, CYAN_DARK);
+    draw_text(buffer, 8, 6, "DONKEY", WHITE, 1);
+    draw_text(buffer, 56, 6, "//", ROAD_EDGE, 1);
+    draw_text(buffer, 72, 6, "RUST RUN", CYAN, 1);
+    draw_text(buffer, 168, 6, &format!("LV {:02}", game.level()), WHITE, 1);
     draw_text(
         buffer,
-        160,
-        4,
+        216,
+        6,
         &format!("SCORE {:05}", game.score),
-        WHITE,
-        1,
-    );
-    draw_text(
-        buffer,
-        8,
-        14,
-        &format!("SOUND {}", if game.sound_on { "ON " } else { "OFF" }),
-        WHITE,
+        YELLOW,
         1,
     );
 
     if !game.started {
-        draw_text(buffer, 56, 92, "PRESS SPACE TO START", WHITE, 1);
+        fill_rect(buffer, 58, 78, 204, 48, SHADOW);
+        fill_rect(buffer, 58, 78, 204, 2, ROAD_EDGE);
+        draw_text(buffer, 88, 88, "DODGE THE DONKEYS", WHITE, 1);
+        draw_text(buffer, 76, 106, "[SPACE] START  [M] SOUND", CYAN, 1);
     } else if game.over {
-        draw_text(buffer, 68, 84, "CRASH!", WHITE, 2);
-        draw_text(buffer, 50, 104, "R TO RESTART  Q TO QUIT", WHITE, 1);
+        fill_rect(buffer, 68, 76, 184, 56, SHADOW);
+        fill_rect(buffer, 68, 76, 184, 3, ROAD_EDGE);
+        draw_text(buffer, 112, 86, "CRASH!", ROAD_EDGE, 2);
+        draw_text(buffer, 84, 114, "[R] RETRY   [Q] QUIT", WHITE, 1);
+    } else {
+        draw_text(
+            buffer,
+            8,
+            188,
+            if game.sound_on {
+                "M: SOUND ON"
+            } else {
+                "M: SOUND OFF"
+            },
+            WHITE,
+            1,
+        );
     }
 }
 
@@ -390,11 +491,9 @@ fn main() -> Result<(), String> {
         if game.started && !game.over {
             if left_down && !left_was_down && game.car_lane != Lane::Left {
                 game.car_lane = Lane::Left;
-                beep(game.sound_on, 1);
             }
             if right_down && !right_was_down && game.car_lane != Lane::Right {
                 game.car_lane = Lane::Right;
-                beep(game.sound_on, 1);
             }
         }
         left_was_down = left_down;
@@ -410,7 +509,11 @@ fn main() -> Result<(), String> {
 
         draw(&mut buffer, &game);
         texture
-            .update(Rect::new(0, 0, WIDTH as u32, HEIGHT as u32), &buffer, WIDTH * 3)
+            .update(
+                Rect::new(0, 0, WIDTH as u32, HEIGHT as u32),
+                &buffer,
+                WIDTH * 3,
+            )
             .map_err(|e| e.to_string())?;
         canvas.copy(&texture, None, None)?;
         canvas.present();
@@ -419,4 +522,38 @@ fn main() -> Result<(), String> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn spawned_lanes_do_not_follow_a_forced_alternating_pattern() {
+        let mut game = Game::new(0x1234_5678);
+        let lanes: Vec<Lane> = (0..32)
+            .map(|_| {
+                game.spawn_donkey();
+                game.donkey_lane
+            })
+            .collect();
+
+        assert!(lanes.windows(2).any(|pair| pair[0] == pair[1]));
+        assert!(lanes.contains(&Lane::Left));
+        assert!(lanes.contains(&Lane::Right));
+    }
+
+    #[test]
+    fn difficulty_increases_and_speed_is_capped() {
+        let mut game = Game::new(1);
+        assert_eq!(game.level(), 1);
+        assert_eq!(game.donkey_speed(), 55.0);
+
+        game.score = 5;
+        assert_eq!(game.level(), 2);
+        assert_eq!(game.donkey_speed(), 75.0);
+
+        game.score = 100;
+        assert_eq!(game.donkey_speed(), 135.0);
+    }
 }

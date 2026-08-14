@@ -1,0 +1,11 @@
+/Users/danieloraca/Daniel/donkey-bas/target/release/build/sdl2-sys-b5651d107b731b4d/out/build/CMakeFiles/sdl_headers_copy.dir
+/Users/danieloraca/Daniel/donkey-bas/target/release/build/sdl2-sys-b5651d107b731b4d/out/build/CMakeFiles/SDL2main.dir
+/Users/danieloraca/Daniel/donkey-bas/target/release/build/sdl2-sys-b5651d107b731b4d/out/build/CMakeFiles/SDL2.dir
+/Users/danieloraca/Daniel/donkey-bas/target/release/build/sdl2-sys-b5651d107b731b4d/out/build/CMakeFiles/SDL2_test.dir
+/Users/danieloraca/Daniel/donkey-bas/target/release/build/sdl2-sys-b5651d107b731b4d/out/build/CMakeFiles/uninstall.dir
+/Users/danieloraca/Daniel/donkey-bas/target/release/build/sdl2-sys-b5651d107b731b4d/out/build/CMakeFiles/edit_cache.dir
+/Users/danieloraca/Daniel/donkey-bas/target/release/build/sdl2-sys-b5651d107b731b4d/out/build/CMakeFiles/rebuild_cache.dir
+/Users/danieloraca/Daniel/donkey-bas/target/release/build/sdl2-sys-b5651d107b731b4d/out/build/CMakeFiles/list_install_components.dir
+/Users/danieloraca/Daniel/donkey-bas/target/release/build/sdl2-sys-b5651d107b731b4d/out/build/CMakeFiles/install.dir
+/Users/danieloraca/Daniel/donkey-bas/target/release/build/sdl2-sys-b5651d107b731b4d/out/build/CMakeFiles/install/local.dir
+/Users/danieloraca/Daniel/donkey-bas/target/release/build/sdl2-sys-b5651d107b731b4d/out/build/CMakeFiles/install/strip.dir
