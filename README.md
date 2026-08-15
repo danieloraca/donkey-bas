@@ -1,3 +1,5 @@
+<img width="1440" height="900" alt="image" src="https://github.com/user-attachments/assets/f1e87866-d2a4-4e4a-ad7f-243904f7a0ba" />
+
 # Donkey Run
 
 A fast, neon-soaked arcade dodger inspired by the classic `DONKEY.BAS`, rebuilt in Rust with SDL2.
